@@ -1,9 +1,7 @@
-<h1 class="text-3xl font-bold underline">
-    Hello world!
-</h1>
-  
-<style lang="postcss">
-:global(html) {
-    background-color: theme(colors.gray.100);
-}
-</style>
+<script lang="ts">
+    
+</script>
+
+<div class="p-4">
+    <input class="text-3xl font-bold h-14 bg-transparent outline-none" value="Poem Name">
+</div> 
