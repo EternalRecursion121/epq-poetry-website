@@ -12,7 +12,7 @@
 
 <div class="sidebar" class:open>
     <div class="flex flex-col border-r items-center border-gray-400 w-[65px] h-full fixed">
-        <span class="justify-start material-symbols-sharp hover:bg-black hover:bg-opacity-5 hover:cursor-pointer w-10 h-10 rounded-full mt-3" style="font-size:40px" on:click={()=>{open=!open}}>chevron_left</span>
+        <span class:-scale-x-100={!open} class="transition-transform duration-500 ease-in-out justify-start material-symbols-sharp hover:bg-black hover:bg-opacity-5 hover:cursor-pointer w-10 h-10 rounded-full mt-3" style="font-size:40px" on:click={()=>{open=!open}}>chevron_left</span>
 
         <div class:bg-[#FFE08D]="{mode === 'planning'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mt-auto" on:click={()=>{mode='planning'}}>
             <span class="material-symbols-sharp" style="font-size:33px">lightbulb</span>
@@ -26,7 +26,7 @@
             <span class="material-symbols-sharp" style="font-size:33px">edit</span>
         </div>
 
-        <div class:bg-[#F4A460]="{mode === 'editing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode='editing'}}>
+        <div class:bg-[#ED8C9C]="{mode === 'editing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode='editing'}}>
             <span class="material-symbols-sharp mb-1" style="font-size:28px">edit_square</span>
         </div>
    </div>

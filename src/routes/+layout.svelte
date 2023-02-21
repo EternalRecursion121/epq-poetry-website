@@ -17,6 +17,10 @@
     background-color: theme(colors.gray.100);
   }
 
+  * {
+    box-sizing: border-box;
+  }
+
   .main-section{
     position: relative;
     min-height: 100vh;
