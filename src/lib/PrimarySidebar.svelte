@@ -26,7 +26,7 @@
             <span class="material-symbols-sharp" style="font-size:33px">edit</span>
         </div>
 
-        <div class:bg-[#F16B6F]="{mode === 'editing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode='editing'}}>
+        <div class:bg-[#F4A460]="{mode === 'editing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode='editing'}}>
             <span class="material-symbols-sharp mb-1" style="font-size:28px">edit_square</span>
         </div>
    </div>
