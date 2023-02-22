@@ -1,9 +1,8 @@
 <script lang="ts">
     export let open: boolean;
     export let savedFiles:Array<Record<string, string>> = [];
-
-    let mode = "writing";
-    const modes = ["planning", "reading", "writing", "editing"];
+    export let mode: number;
+    export let poems: Array<Object> = [];
 </script>
 
 <svelte:head>
@@ -12,27 +11,48 @@
 
 <div class="sidebar" class:open>
     <div class="flex flex-col border-r items-center border-gray-400 w-[65px] h-full fixed">
-        <span class:-scale-x-100={!open} class="transition-transform duration-500 ease-in-out justify-start material-symbols-sharp hover:bg-black hover:bg-opacity-5 hover:cursor-pointer w-10 h-10 rounded-full mt-3" style="font-size:40px" on:click={()=>{open=!open}}>chevron_left</span>
+        <span class:-scale-x-100={!open} class="transition-transform duration-300 ease-in-out justify-start material-symbols-sharp hover:cursor-pointer w-10 h-10 rounded-full mt-5" style="font-size:40px" on:click={()=>{open=!open}}>chevron_left</span>
 
-        <div class:bg-[#FFE08D]="{mode === 'planning'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mt-auto" on:click={()=>{mode='planning'}}>
+        
+        <div class:bg-[#FFE08D]="{mode === 1}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mt-auto" on:click={()=>{mode=1}}>
             <span class="material-symbols-sharp" style="font-size:33px">lightbulb</span>
         </div>
         
-        <div class:bg-[#7FB2F0]="{mode === 'reading'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center" on:click={()=>{mode='reading'}}>
+        <div class:bg-[#7FB2F0]="{mode === 2}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center" on:click={()=>{mode=2}}>
             <span class="material-symbols-sharp" style="font-size:30px">visibility</span>
         </div>
 
-        <div class:bg-[#B1D8B7]="{mode === 'writing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center" on:click={()=>{mode='writing'}}>
+        <div class:bg-[#B1D8B7]="{mode === 3}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center" on:click={()=>{mode=3}}>
             <span class="material-symbols-sharp" style="font-size:33px">edit</span>
         </div>
 
-        <div class:bg-[#ED8C9C]="{mode === 'editing'}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode='editing'}}>
+        <div class:bg-[#ED8C9C]="{mode === 4}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mb-10" on:click={()=>{mode=4}}>
             <span class="material-symbols-sharp mb-1" style="font-size:28px">edit_square</span>
         </div>
    </div>
-    <div class="ml-[65px]">
-        
+   {#if open}
+    <div class="ml-[65px] py-7">
+        <div class="flex flex-col">
+            <div class="flex flex-row justify-between items-center">
+                <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">folder</span>
+                <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">add</span>
+            </div>
+            <div class="flex flex-col">
+                {#each poems as poem}
+                    <div class="flex flex-row justify-between items-center">
+                        <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">more_vert</span>
+                    </div>
+                {/each}
+            </div>
+            
+            <div class="flex flex-row justify-between items-center">
+                <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">save</span>
+                <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">more_vert</span>
+            </div> 
+        </div> 
     </div>
+    {/if}
 
 </div>
 
