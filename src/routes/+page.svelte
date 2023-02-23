@@ -6,11 +6,12 @@
 
   import { onMount } from "svelte";
 
-  let open = true;
+  let pSidebarOpen = true;
   let mode = 1;
   let command = '';
+  let newPoem = true;
   const modes = ["planning", "reading", "writing", "editing"];
-
+  
   function onKeyPress(e: KeyboardEvent) {
     if (e.getModifierState('Alt')) {
       switch (e.key) {
@@ -58,8 +59,8 @@
 </script>
 
 <div>
-  <PrimarySidebar bind:open bind:mode {poems}/>
-  <div class="main-section" class:sidebar-open={open}>
+  <PrimarySidebar bind:open={pSidebarOpen} bind:mode {poems} {newPoem}/>
+  <div class="main-section" class:sidebar-open={pSidebarOpen}>
     <Editor bind:mode/>
   </div>
   <RightSidebar {command}/>

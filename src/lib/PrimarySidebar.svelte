@@ -1,8 +1,9 @@
 <script lang="ts">
     export let open: boolean;
-    export let savedFiles:Array<Record<string, string>> = [];
     export let mode: number;
+    export let newPoem: boolean;
     export let poems: Array<Object> = [];
+    export let sidebarMode = 'files';
 </script>
 
 <svelte:head>
@@ -31,11 +32,12 @@
         </div>
    </div>
    {#if open}
-    <div class="ml-[65px] py-7">
+   <div class="ml-[65px] h-full py-7 flex flex-col justify-between">
         <div class="flex flex-col">
             <div class="flex flex-row justify-between items-center">
-                <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">folder</span>
-                <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">add</span>
+                <span class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">folder</span>
+                <span class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2" style="font-size:29px">keyboard_command_key</span>
+                <span class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">add</span>
             </div>
             <div class="flex flex-col">
                 {#each poems as poem}
@@ -45,13 +47,14 @@
                     </div>
                 {/each}
             </div>
-            
-            <div class="flex flex-row justify-between items-center">
-                <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">save</span>
-                <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">more_vert</span>
-            </div> 
-        </div> 
+        </div>
+
+        <button class="flex flex-row justify-between px-5 py-3 hover:bg-gray-200 rounded">
+            <span class="text-lg">Save</span>
+            <span class="material-symbols-sharp text-2xl" style="font-size:32px">save</span>
+        </button>
     </div>
+
     {/if}
 
 </div>
