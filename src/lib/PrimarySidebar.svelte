@@ -1,9 +1,18 @@
 <script lang="ts">
     export let open: boolean;
     export let mode: number;
-    export let newPoem: boolean;
-    export let poems: Array<Object> = [];
+    export let selectedPoemId: string;
+    export let poems: Record<string, Object>;
     export let sidebarMode = 'files';
+    export let createPoem: Function;
+    export let savePoem: Function;
+    export let currentPoem;
+
+    function openPoem(id: string) {
+        currentPoem = poems[id];
+        selectedPoemId = id;
+    }
+
 </script>
 
 <svelte:head>
@@ -35,21 +44,26 @@
    <div class="ml-[65px] h-full py-7 flex flex-col justify-between">
         <div class="flex flex-col">
             <div class="flex flex-row justify-between items-center">
-                <span class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">folder</span>
-                <span class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2" style="font-size:29px">keyboard_command_key</span>
-                <span class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">add</span>
+                <span on:click={() => {sidebarMode = 'files'}} class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">folder</span>
+                <span on:click={() => {sidebarMode = 'command'}} class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:29px">keyboard_command_key</span>
+                <span on:click={createPoem} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
+            {#if sidebarMode === 'files'}
             <div class="flex flex-col">
-                {#each poems as poem}
-                    <div class="flex flex-row justify-between items-center">
+                {#each Object.entries(poems) as [id, poem]}
+                    <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center" on:click={()=>{openPoem(id)}}>
                         <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
+                        <span class="text-lg">{poem.name}</span>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">more_vert</span>
-                    </div>
+                    </button>
                 {/each}
             </div>
+            {:else if sidebarMode === 'command'}
+  
+            {/if}
         </div>
 
-        <button class="flex flex-row justify-between px-5 py-3 hover:bg-gray-200 rounded">
+        <button class="flex flex-row justify-between px-5 py-3 hover:bg-gray-200 rounded" on:click={savePoem}>
             <span class="text-lg">Save</span>
             <span class="material-symbols-sharp text-2xl" style="font-size:32px">save</span>
         </button>
@@ -65,8 +79,7 @@
         position: fixed;
         width: 65px;
         height: 100%;
-        transition: all 0.5s;
-    }
+        transition: all 0.5s; }
 
     .sidebar.open {
         width: 250px;

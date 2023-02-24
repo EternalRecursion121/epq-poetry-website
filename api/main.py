@@ -1,10 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import json
 
 with open("data/poems.json") as f:
     poems = json.load(f)
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def save_poems():
     with open("data/poems.json", "w") as f:
@@ -12,7 +20,6 @@ def save_poems():
 
 @app.get("/poems")
 def get_poems():
-    print("HI")
     return poems
 
 @app.get("/poems/{poem_id}")
@@ -23,7 +30,7 @@ def get_poem(poem_id: int):
 
 @app.post("/poems")
 def add_poem(poem: dict):
-    poem_id = max(poems.keys()) + 1
+    poem_id = str(max(map(int, poems.keys()), default=0) + 1)
     poems[poem_id] = poem
     save_poems()
     return {"poem_id": poem_id, "poem": poem}
@@ -43,6 +50,5 @@ def delete_poem(poem_id: int):
     del poems[poem_id]
     save_poems()
     return {"poem_id": poem_id}
-
 
 
