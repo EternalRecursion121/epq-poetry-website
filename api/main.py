@@ -23,32 +23,32 @@ def get_poems():
     return poems
 
 @app.get("/poems/{poem_id}")
-def get_poem(poem_id: int):
+def get_poem(poem_id: str):
     if poem_id not in poems:
         raise HTTPException(status_code=404, detail="Poem not found")
-    return {"poem_id": poem_id, "poem": poems[poem_id]}
+    return {"id": poem_id, "poem": poems[poem_id]}
 
 @app.post("/poems")
 def add_poem(poem: dict):
     poem_id = str(max(map(int, poems.keys()), default=0) + 1)
     poems[poem_id] = poem
     save_poems()
-    return {"poem_id": poem_id, "poem": poem}
+    return {"id": poem_id, "poem": poem}
 
 @app.put("/poems/{poem_id}")
-def update_poem(poem_id: int, poem: dict):
+def update_poem(poem_id: str, poem: dict):
     if poem_id not in poems:
         raise HTTPException(status_code=404, detail="Poem not found")
     poems[poem_id] = poem
     save_poems()
-    return {"poem_id": poem_id, "poem": poem}
+    return {"id": poem_id, "poem": poem}
 
 @app.delete("/poems/{poem_id}")
-def delete_poem(poem_id: int):
+def delete_poem(poem_id: str):
     if poem_id not in poems:
         raise HTTPException(status_code=404, detail="Poem not found")
     del poems[poem_id]
     save_poems()
-    return {"poem_id": poem_id}
+    return {"id": poem_id}
 
 

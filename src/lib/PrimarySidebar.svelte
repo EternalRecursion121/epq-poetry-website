@@ -5,12 +5,55 @@
     export let poems: Record<string, Object>;
     export let sidebarMode = 'files';
     export let createPoem: Function;
-    export let savePoem: Function;
-    export let currentPoem;
+    export let newPoem: boolean;
+    export let currentPoem: Object;
 
     function openPoem(id: string) {
+        newPoem = false;
         currentPoem = poems[id];
         selectedPoemId = id;
+    }
+
+    function savePoem() {
+        if (newPoem) {
+        fetch('http://127.0.0.1:8000/poems', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(currentPoem)
+        }).then(res => res.json()).then(data => {
+            poems[data.poem_id] = data.poem;
+        });
+        } else {
+            fetch('http://127.0.0.1:8000/poems/' + selectedPoemId, {
+                method: 'PUT',
+                headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                },
+                body: JSON.stringify(currentPoem)
+            }).then(res => res.json()).then(data => {
+                poems[selectedPoemId] = data.poem;
+            });
+            newPoem = false;
+        }
+    }
+
+    function deletePoem(id: string) {
+        fetch('http://127.0.0.1:8000/poems/' + id , {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            }
+        }).then(res => {
+            if (res.ok) {
+                delete poems[selectedPoemId];
+                selectedPoemId = '';
+            }
+        });
     }
 
 </script>
@@ -49,12 +92,12 @@
                 <span on:click={createPoem} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
             {#if sidebarMode === 'files'}
-            <div class="flex flex-col">
+            <div class="flex flex-col my-2">
                 {#each Object.entries(poems) as [id, poem]}
-                    <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center" on:click={()=>{openPoem(id)}}>
+                    <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center py-1 hover:bg-gray-200" on:click={()=>{openPoem(id)}}>
                         <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
                         <span class="text-lg">{poem.name}</span>
-                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size:30px">more_vert</span>
+                        <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click={()=>{deletePoem(id)}}>delete</span>
                     </button>
                 {/each}
             </div>
