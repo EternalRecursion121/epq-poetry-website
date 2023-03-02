@@ -5,6 +5,7 @@
     export let poems: Record<string, Object>;
     export let sidebarMode = 'files';
     export let createPoem: Function;
+    export let savePoem: Function;
     export let newPoem: boolean;
     export let currentPoem: Object;
 
@@ -12,33 +13,6 @@
         newPoem = false;
         currentPoem = poems[id];
         selectedPoemId = id;
-    }
-
-    function savePoem() {
-        if (newPoem) {
-        fetch('http://127.0.0.1:8000/poems', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            },
-            body: JSON.stringify(currentPoem)
-        }).then(res => res.json()).then(data => {
-            poems[data.poem_id] = data.poem;
-        });
-        } else {
-            fetch('http://127.0.0.1:8000/poems/' + selectedPoemId, {
-                method: 'PUT',
-                headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                },
-                body: JSON.stringify(currentPoem)
-            }).then(res => res.json()).then(data => {
-                poems[selectedPoemId] = data.poem;
-            });
-            newPoem = false;
-        }
     }
 
     function deletePoem(id: string) {
@@ -68,7 +42,7 @@
 
         
         <div class:bg-[#FFE08D]="{mode === 1}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mt-auto" on:click={()=>{mode=1}}>
-            <span class="material-symbols-sharp" style="font-size:33px">lightbulb</span>
+            <span class='material-symbols-sharp' style="font-size:33px">lightbulb</span>
         </div>
         
         <div class:bg-[#7FB2F0]="{mode === 2}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center" on:click={()=>{mode=2}}>
@@ -97,7 +71,7 @@
                     <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center py-1 hover:bg-gray-200" on:click={()=>{openPoem(id)}}>
                         <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
                         <span class="text-lg">{poem.name}</span>
-                        <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click={()=>{deletePoem(id)}}>delete</span>
+                        <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click|stopPropagation={()=>{deletePoem(id)}}>delete</span>
                     </button>
                 {/each}
             </div>

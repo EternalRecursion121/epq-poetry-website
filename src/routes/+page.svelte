@@ -5,7 +5,6 @@
   import RightSidebar from "$lib/RightSidebar.svelte";
 
   import { onMount } from "svelte";
-
   let pSidebarOpen = true;
   let mode = 1;
   let command = '';
@@ -14,6 +13,39 @@
   let selectedPoemId: string;
   const modes = ["planning", "reading", "writing", "editing"];
   let poems: Record<string, Object> = {};
+  let editorpre:HTMLPreElement;
+
+  function savePoem() {
+    if (editorpre) {
+      currentPoem.body = editorpre.innerHTML;
+    }
+
+    if (newPoem) {
+    fetch('http://127.0.0.1:8000/poems', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify(currentPoem)
+    }).then(res => res.json()).then(data => {
+        poems[data.poem_id] = data.poem;
+    });
+    } else {
+        fetch('http://127.0.0.1:8000/poems/' + selectedPoemId, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(currentPoem)
+        }).then(res => res.json()).then(data => {
+            poems[selectedPoemId] = data.poem;
+        });
+        newPoem = false;
+    }
+  }
+
   
   
   function onKeyPress(e: KeyboardEvent) {
@@ -79,9 +111,9 @@
 </script>
 
 <div>
-  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} {selectedPoemId} bind:currentPoem/>
+  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem/>
   <div class="main-section" class:sidebar-open={pSidebarOpen}>
-    <Editor bind:mode bind:currentPoem/>
+    <Editor bind:mode bind:currentPoem bind:editorpre={editorpre}/>
   </div>
   <RightSidebar {command}/>
 </div>
