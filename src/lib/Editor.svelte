@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { Node } from "postcss";
-
     export let mode: number;
     export let currentPoem: Object;
     export let editorpre: null|HTMLPreElement = null;
 
     import { onMount } from "svelte";
 
-    let marks: Array<HTMLElement> = []; 
     let selectionStart: number;
     let selectionEnd: number;
+    let selectionTimer: null | number = null;
+
+    let lastRange: Range;
 
     onMount(() => {
         document.addEventListener('selectionchange', handleSelectionChange);
@@ -20,31 +20,76 @@
     }
 
     function highlight(range: Range) {
-        console.log(range.extractContents())
-        for (let mark of marks) {
-            mark.parentNode?.replaceChild(mark.firstChild, mark);
-        }
 
-        range.extractContents().childNodes.forEach((childNode) => {
-            if (childNode.nodeType === Node.TEXT_NODE) {
-                const mark = document.createElement('mark');
-                marks.push(mark);
-                childNode.parentNode?.insertBefore(mark, childNode);
-                mark.appendChild(childNode);
-            }
-        });
+        // console.log("RUN")
+        // // Remove any existing mark elements
+        // const existingMarks = document.querySelectorAll('mark[data-highlighted]');
+        // existingMarks.forEach(mark => {
+        //     mark.outerHTML = mark.innerHTML;
+        // });
+
+        // // Create a new mark element to wrap the selection
+        // const mark = document.createElement('mark');
+        // mark.setAttribute('data-highlighted', 'true');
+
+        // // Clone the range to avoid modifying the original selection
+        // const clonedRange = range.cloneRange();
+
+        // // Get the start and end container elements for the selection
+        // const startContainer = range.startContainer;
+        // const endContainer = range.endContainer;
+
+        // // If the start and end container elements are the same, just wrap the selection with the new mark element
+        // if (startContainer === endContainer) {
+        //     clonedRange.surroundContents(mark);
+        // } else {
+        //     // If the start and end container elements are different, create a new range for each line of text
+        //     const startLineRange = document.createRange();
+        //     startLineRange.setStart(startContainer, range.startOffset);
+        //     startLineRange.setEndAfter(startContainer);
+
+        //     const endLineRange = document.createRange();
+        //     endLineRange.setStartBefore(endContainer);
+        //     endLineRange.setEnd(endContainer, range.endOffset);
+
+        //     // Wrap the start line with the new mark element
+        //     const startLineMark = mark.cloneNode();
+        //     startLineMark.appendChild(startLineRange.extractContents());
+        //     startLineRange.insertNode(startLineMark);
+
+        //     // Wrap each middle line with a new mark element
+        //     let currentNode = startContainer.nextSibling;
+        //     while (currentNode && currentNode !== endContainer) {
+        //         const lineMark = mark.cloneNode();
+        //         lineMark.appendChild(currentNode.cloneNode(true));
+        //         currentNode.parentNode.replaceChild(lineMark, currentNode);
+        //         currentNode = startContainer.nextSibling;
+        //     }
+
+        //     // Wrap the end line with the new mark element
+        //     const endLineMark = mark.cloneNode();
+        //     endLineMark.appendChild(endLineRange.extractContents());
+        //     endLineRange.insertNode(endLineMark);
+        // }
+        console.log(mark)
+        mark.unmark();
+        mark.markRanges([range]);
     }
 
     function handleSelectionChange(e) {
+        console.log("SLEECTION CHANGE")
         if (e.target.activeElement !== editorpre) return;
 
         const selection = window.getSelection();
-        console.log(selection)
+
         if (selection && !selection.isCollapsed) {
             const range = selection.getRangeAt(0);
 
             if (selectionStart !== range.startOffset || selectionEnd !== range.endOffset) {
                 highlight(range);
+
+                selectionStart = range.startOffset;
+                selectionEnd = range.endOffset;
             }
         }
     }
