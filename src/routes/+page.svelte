@@ -94,6 +94,7 @@
           'Access-Control-Allow-Origin': '*'
         }
       }).then(res => res.json()).then(data => {
+        console.log(data)
         poems = data;
     });
   });
