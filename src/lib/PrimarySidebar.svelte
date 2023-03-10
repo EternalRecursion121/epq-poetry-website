@@ -24,7 +24,8 @@
             }
         }).then(res => {
             if (res.ok) {
-                delete poems[selectedPoemId];
+                delete poems[id];
+                poems = poems;
                 selectedPoemId = '';
             }
         });

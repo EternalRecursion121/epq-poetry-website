@@ -33,7 +33,7 @@ def add_poem(poem: dict):
     poem_id = str(max(map(int, poems.keys()), default=0) + 1)
     poems[poem_id] = poem
     save_poems()
-    return {"id": poem_id, "poem": poem}
+    return {"poem_id": poem_id, "poem": poem}
 
 @app.put("/poems/{poem_id}")
 def update_poem(poem_id: str, poem: dict):
@@ -41,7 +41,7 @@ def update_poem(poem_id: str, poem: dict):
         raise HTTPException(status_code=404, detail="Poem not found")
     poems[poem_id] = poem
     save_poems()
-    return {"id": poem_id, "poem": poem}
+    return {"poem_id": poem_id, "poem": poem}
 
 @app.delete("/poems/{poem_id}")
 def delete_poem(poem_id: str):
@@ -49,6 +49,6 @@ def delete_poem(poem_id: str):
         raise HTTPException(status_code=404, detail="Poem not found")
     del poems[poem_id]
     save_poems()
-    return {"id": poem_id}
+    return {"poem_id": poem_id}
 
 

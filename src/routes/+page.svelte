@@ -13,24 +13,29 @@
   let selectedPoemId: string;
   const modes = ["planning", "reading", "writing", "editing"];
   let poems: Record<string, Object> = {};
-  let editorpre:HTMLPreElement;
+  let editordiv:HTMLPreElement;
+
+  $: console.log(poems);
 
   function savePoem() {
-    if (editorpre) {
-      currentPoem.body = editorpre.innerHTML;
+    if (editordiv) {
+      currentPoem.body = editordiv.innerHTML;
     }
 
     if (newPoem) {
-    fetch('http://127.0.0.1:8000/poems', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify(currentPoem)
-    }).then(res => res.json()).then(data => {
-        poems[data.poem_id] = data.poem;
-    });
+      fetch('http://127.0.0.1:8000/poems', {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify(currentPoem)
+      }).then(res => res.json()).then(data => {
+        
+          poems[data.poem_id] = data.poem;
+          selectedPoemId = data.poem_id;
+      });
+      newPoem = false;
     } else {
         fetch('http://127.0.0.1:8000/poems/' + selectedPoemId, {
             method: 'PUT',
@@ -42,8 +47,8 @@
         }).then(res => res.json()).then(data => {
             poems[selectedPoemId] = data.poem;
         });
-        newPoem = false;
     }
+    poems = poems;
   }
 
   
@@ -94,7 +99,6 @@
           'Access-Control-Allow-Origin': '*'
         }
       }).then(res => res.json()).then(data => {
-        console.log(data)
         poems = data;
     });
   });
@@ -114,7 +118,7 @@
 <div>
   <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem/>
   <div class="main-section" class:sidebar-open={pSidebarOpen}>
-    <Editor bind:mode bind:currentPoem bind:editorpre={editorpre}/>
+    <Editor bind:mode bind:currentPoem bind:editordiv={editordiv}/>
   </div>
   <RightSidebar {command}/>
 </div>
