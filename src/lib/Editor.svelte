@@ -4,7 +4,8 @@
     export let editordiv: null|HTMLDivElement = null;
 
     $: if(editordiv){
-        editordiv.innerHTML = currentPoem.body.replace(/\b(?<!<|span>)(?!>|<\/span>)(\w+)(?!<|<\/span>)(?<!>|span)\b/g, '<span>$1</span>');
+        // editordiv.innerHTML = currentPoem.body.replace(/\b(?<!<|span>)(?!>|<\/span>)(\w+)(?!<|<\/span>)(?<!>|span)\b/g, '<span>$1</span>');
+        // editordiv.innerHTML = currentPoem.body.replace(/\b(\w+)\b(?!(?:(?!<span[^>]*>)[^<])*<\/span>)/g, '<span>$1</span>');
     }
 
 </script>
