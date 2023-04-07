@@ -25,6 +25,8 @@ def parse(url):
 
         # Data Extraction from the url.
         poem = (pretty_text(soup.find_all('div', class_="o-poem")[0].text))
+        if poem.strip() == "":
+            raise IndexError
 
         title = soup.find_all('h1')[0].text
 
@@ -47,8 +49,8 @@ def parse(url):
             article_content.find('div', class_="o-article__content")
             if article_content.find('img'):
                 return "img"
-            else:
-                return None
+        
+        return None
 
     except Exception as e:
         print(e)
@@ -67,7 +69,7 @@ def fetch_poems_concurrently(poem_ids, num_workers=None):
     try:
         fetched_poems = {}
         with multiprocessing.Pool(processes=num_workers) as pool:
-            for (poem_id, result) in tqdm(pool.imap_unordered(fetch_poem, poem_ids), total=len(poem_ids), unit="poem"):
+            for (poem_id, result) in tqdm(pool.imap_unordered(fetch_poem, poem_ids), total=len(poem_ids), unit="poem", smoothing=0.1):
                 if result is not None and result != "img":
                     fetched_poems[poem_id] = result
                     remaining_poem_ids.remove(poem_id)
@@ -75,7 +77,7 @@ def fetch_poems_concurrently(poem_ids, num_workers=None):
                 else:
                     if result == "img":
                         remaining_poem_ids.remove(poem_id)
-                        print("img")
+                        print("img", poem_id)
                     else:
                         invalid += 1
                         print("IIIIIIII")
