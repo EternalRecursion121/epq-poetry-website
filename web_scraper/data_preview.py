@@ -4,7 +4,7 @@ import random
 def read_poems(file_path, num_poems=5):
     with open(file_path, 'r') as f:
         poems = json.load(f)
-    
+
     # Get random poem IDs
     poem_ids = random.sample(list(poems.keys()), num_poems)
 
