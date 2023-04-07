@@ -11,11 +11,12 @@ def read_poems(file_path, num_poems=5):
     # Print poems
     for poem_id in poem_ids:
         poem = poems[poem_id]
+        print(f"ID: {poem_id}")
         print(f"Title: {poem['title']}")
         print(f"Poet: {poem['poet']}")
         print(f"Tags: {poem['tags']}")
         print(f"Poem:\n{poem['poem']}\n")
-        x = input()
+        input()
         
 if __name__ == '__main__':
     read_poems('poetry_foundation_poems.json', 5)
