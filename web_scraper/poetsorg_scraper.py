@@ -1,7 +1,6 @@
 import requests
 import bs4 as bs
 import json
-import asyncio
 from time import sleep
 
 TOTAL_PAGES = 696
