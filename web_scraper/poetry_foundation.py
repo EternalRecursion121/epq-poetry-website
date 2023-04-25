@@ -3,14 +3,13 @@ import bs4 as bs
 import re
 import multiprocessing
 import sys
-import time
 
 import json
 from tqdm import tqdm
 
 # Reformats the string into readable text.
 def pretty_text(text):
-    final = (((text).replace(u'\xa0', u' ')).replace(u'\r ',u'\n'))
+    final = (((text).replace(u'\xa0', u' ')).replace(u'\r ',u''))
     return final
 
 def parse(url):
@@ -24,7 +23,17 @@ def parse(url):
         soup = bs.BeautifulSoup(response.content, 'html.parser')
 
         # Data Extraction from the url.
-        poem = (pretty_text(soup.find_all('div', class_="o-poem")[0].text))
+        poem_div = soup.find_all('div', class_="o-poem")[0]
+
+        ## Check if poem is an image
+        if poem_div.find('img'):
+            return "img"
+
+        for br in poem_div.find_all("br"):
+            br.replace_with("\n")
+
+        poem = pretty_text(poem_div.text).rstrip()
+        
         if poem.strip() == "":
             raise IndexError
 
@@ -43,13 +52,10 @@ def parse(url):
             "tags": tags
         }
 
-    except IndexError:
-        article_content = soup.find('article', class_="o-article")
-        if article_content:
-            article_content.find('div', class_="o-article__content")
-            if article_content.find('img'):
+    except IndexError:  
+        if poem_div:=soup.find('div', class_="c-assetStack"):
+            if poem_div.find('img'):
                 return "img"
-        
         return None
 
     except Exception as e:
@@ -69,7 +75,7 @@ def fetch_poems_concurrently(poem_ids, num_workers=None):
     try:
         fetched_poems = {}
         with multiprocessing.Pool(processes=num_workers) as pool:
-            for (poem_id, result) in tqdm(pool.imap_unordered(fetch_poem, poem_ids), total=len(poem_ids), unit="poem", smoothing=0.1):
+            for (poem_id, result) in tqdm(pool.imap_unordered(fetch_poem, list(remaining_poem_ids)), total=len(remaining_poem_ids), unit="poem", smoothing=0.05):
                 if result is not None and result != "img":
                     fetched_poems[poem_id] = result
                     remaining_poem_ids.remove(poem_id)
@@ -80,7 +86,7 @@ def fetch_poems_concurrently(poem_ids, num_workers=None):
                         print("img", poem_id)
                     else:
                         invalid += 1
-                        print("IIIIIIII")
+                        print("IIIIIIII", poem_id)
                     
     except KeyboardInterrupt:
         print("\nInterrupted. Saving progress...")
@@ -159,7 +165,35 @@ def main():
     #         dataF.to_csv("PoetryFoundationData"+file_name[len("PoetryFoundationUrls"):]+ str(i) +"-"+str(i+200)+".csv")
     #         i=i+200
 
+def reload_poems():
+    with open('poetry_foundation_poems.json', 'r') as f:
+        fetched_poems = json.load(f)
+        poem_ids = list(fetched_poems.keys())
+
+        saved_poems_before = len(fetched_poems)
+        new_fetched_poems, remaining_poem_ids, invalid = fetch_poems_concurrently(poem_ids)
+
+        fetched_poems.update(new_fetched_poems)
+        saved_poems_after = len(fetched_poems)
+
+    with open('poetry_foundation_poems.json', 'w') as f:
+        json.dump(fetched_poems, f)
+
+    # Display progress information
+    valid_poems_saved = saved_poems_after
+    saved_poems_percentage = (valid_poems_saved / (valid_poems_saved + len(remaining_poem_ids))) * 100
+    new_poems_saved = saved_poems_after - saved_poems_before
+
+    with open('remaining_poem_ids.txt', 'w') as f:
+        f.write('\n'.join(remaining_poem_ids))
+
+    print(f"Total poems saved: {valid_poems_saved}")
+    print(f"Percentage of total poems saved: {saved_poems_percentage:.2f}%")
+    print(f"New poems saved this iteration: {new_poems_saved}")
+    print(f"Invalid poems this iteration: {invalid}")
+
 
 
 if __name__ == '__main__':
     main()
+    # print(parse("https://www.poetryfoundation.org/poetrymagazine/poems/156303/neighbors-61095e88c318f")['poem'])

@@ -19,35 +19,39 @@ def read_poems_poetry_foundation(num_poems=5):
         input()
 
 def read_poems_poets(num_poems=5):
-    with open('poetsorg_poems_unique.json', 'r') as f:
+    with open('poetsorg_poems.json', 'r') as f:
         poems = json.load(f)
+        print(len(poems))
+    #     poems = [poem for poem in poems if poem['poem'].strip()]
+    #     print(len(poems))
 
-    print(len(poems))
+    # # print(len(poems))
 
-    ## Remove dupplicates
-    unique =  set(map(lambda x: tuple(x.values()), poems))
+    # ## Remove dupplicates
+    # unique =  set(map(lambda x: x['title'], poems))
 
-    poems = [dict(zip(poems[0].keys(), values)) for values in unique]
+    # print(len(unique))
+
+    # poem_dict = {poem['title']:poem for poem in poems}
+    # poems = list(poem_dict.values())
+
+    # print(len(poems))
+    # for poem in poems:
+    #     poem['themes'] = [theme for theme in poem['themes'] if theme != 'public domain']
     
-    
-
-    ## Save unique poems
-
-    with open('poetsorg_poems_unique.json', 'w') as f:
-        json.dump(poems, f)
 
 
     # with open('poetsorg_poems.json', 'w') as f:
     #     json.dump(poems, f)
 
-    # # Get random poem IDs
-    # poems = random.sample(poems, num_poems)
+    # Get random poem IDs
+    poems = random.sample(poems, num_poems)
 
-    # # Print poems
-    # for poem in poems:
-    #     for key, value in poem.items():
-    #         print(f"{key}: {value}")
-    #     input()
+    # Print poems
+    for poem in poems:
+        for key, value in poem.items():
+            print(f"{key}: {value}")
+        input()
         
 if __name__ == '__main__':
-    read_poems_poets(5)
+    read_poems_poetry_foundation(5)

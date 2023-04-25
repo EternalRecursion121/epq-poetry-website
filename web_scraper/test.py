@@ -1,7 +1,5 @@
-import torch
+import json
 
-print(torch.cuda.get_device_name(0))
-
-print(torch.cuda.is_available())
-
-print()
+with open('ids.json') as f:
+    ids = json.load(f)
+    print(len(ids))

@@ -4,24 +4,30 @@ import bs4 as bs
 import multiprocessing
 import signal
 from tqdm import tqdm
+import regex
 
 
+cache = set()
 def extract_poem_info(url):
+    if url in cache:
+        return None
+    cache.add(url)
     try:
         response = requests.get(url)
-        html = response.content
+        html = response.content.decode('utf-8').replace('</p>', '\n\n</p>').encode('utf-8')
         soup = bs.BeautifulSoup(html, features="lxml")
+
+
 
         poem_div = soup.find('div', {'class': 'poem__body'})
 
-        for br in poem_div.find_all(['br']):
+        for br in poem_div.find_all('br'):
             br.replace_with('\n')
 
-        poem_lines = []
-        for p in poem_div.find_all('p'):
-            poem_lines.append(p.get_text(separator='\n', strip=True))
-        
-        poem_body = "\n\n".join(poem_lines)
+        poem_body = poem_div.get_text().rstrip()
+
+        if not poem_body.strip():
+            return None
 
         tag_div = soup.find('div', {'class': 'poet--aside__tags'})
 
@@ -42,7 +48,7 @@ def extract_poem_info(url):
         
         return {
             'poem': poem_body,
-            'themes': themes,
+            'themes': [theme for theme in themes if theme != 'audio' and theme != 'public domain'],
             'occasions': occasions,
             'forms': forms
         }
@@ -50,12 +56,12 @@ def extract_poem_info(url):
         print(f"Error processing URL: {url}\nError: {e}")
         return None
 
-
 def process_poem(poem):
-    info = extract_poem_info(poem['link'])
-    if info is not None:
-        poem.update(extract_poem_info(poem['link']))
-        return poem
+    if not (poem['poem'] and (poem.get('themes') or poem.get('occasions') or poem.get('forms'))):
+        info = extract_poem_info(poem['link'])
+        if info is not None:
+            poem.update(extract_poem_info(poem['link']))
+            return poem
     return None
 
 
@@ -76,7 +82,7 @@ def init_worker():
 
 def main():
     try:
-        with open('poetsog_poems_unique.json', 'r') as f:
+        with open('poetsorg_poems_unique.json', 'r') as f:
             unique_poems = json.load(f)
 
         poems, start_index = load_progress()
@@ -86,7 +92,7 @@ def main():
             poems = unique_poems
 
         with multiprocessing.Pool(multiprocessing.cpu_count(), initializer=init_worker) as pool:
-            for i, result in enumerate(tqdm(pool.imap(process_poem, poems[start_index:]), total=len(poems), initial=start_index), start=start_index):
+            for i, result in enumerate(tqdm(pool.imap(process_poem, poems[start_index:]), total=len(poems[start_index:]), initial=start_index), start=start_index):
                 if result is None:
                     bad_poems.append(poems[i])
                 else:
@@ -98,10 +104,12 @@ def main():
         print(f"Saving progress at i = {i} ({poems[i]['title']})")
         save_progress(poems, i)
 
+    with open('poetsorg_poems_complete.json', 'w') as f:
         json.dump(poems, f)
     
-    # with open('bad_poems.json', 'w') as f:
-    #     json.dump(bad_poems, f)
+    with open('bad_poems.json', 'w') as f:
+        json.dump(bad_poems, f)
 
 if __name__ == '__main__':
-    main()
+    # main()
+    print(extract_poem_info('https://poets.org/poem/ol-tunes')['poem'])
