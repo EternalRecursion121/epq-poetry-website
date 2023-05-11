@@ -19,6 +19,7 @@
 
   function savePoem() {
     if (editordiv) {
+      editordiv.innerHTML = editordiv.innerHTML.replace(/(<\/div>)(?!$)/g, '\n$1');
       currentPoem.body = editordiv.innerText;
     }
 
