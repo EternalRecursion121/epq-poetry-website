@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
-from .inference import predict_mask
+from inference import predict_mask
 
 with open("data/poems.json") as f:
     poems = json.load(f)
@@ -51,3 +51,7 @@ def delete_poem(poem_id: str):
     del poems[poem_id]
     save_poems()
     return {"poem_id": poem_id}
+
+@app.post("/mask-suggestions")
+def get_mask_suggestions(poem_str):
+    return predict_mask(poem_str)

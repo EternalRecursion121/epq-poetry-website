@@ -18,4 +18,3 @@ def predict_mask(text, n=5):
 
 
 
-
