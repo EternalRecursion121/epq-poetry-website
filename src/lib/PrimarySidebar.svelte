@@ -1,7 +1,7 @@
 <script lang="ts">
     export let open: boolean;
     export let mode: number;
-    export let selectedPoemId: string;
+    export let selectedPoemId: string|null;
     export let poems: Record<string, Object>;
     export let sidebarMode = 'files';
     export let createPoem: Function;
@@ -64,7 +64,7 @@
             <div class="flex flex-row justify-between items-center">
                 <span on:click={() => {sidebarMode = 'files'}} class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">folder</span>
                 <span on:click={() => {sidebarMode = 'command'}} class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:29px">keyboard_command_key</span>
-                <span on:click={createPoem} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
+                <span on:click={() => {selectedPoemId=null; createPoem}} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
             {#if sidebarMode === 'files'}
             <div class="flex flex-col my-2">
@@ -77,6 +77,7 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
+            
   
             {/if}
         </div>

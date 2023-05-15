@@ -19,7 +19,8 @@
 
   function savePoem() {
     if (editordiv) {
-      currentPoem.body = editordiv.innerHTML;
+      editordiv.innerHTML = editordiv.innerHTML.replace(/(<\/div>)(?!$)/g, '\n$1');
+      currentPoem.body = editordiv.innerText;
     }
 
     if (newPoem) {
@@ -105,6 +106,7 @@
 
 
   function createPoem() {
+    console.log("CREATING NEW POEM")
     newPoem = true;
     currentPoem.name = 'New Poem';
     currentPoem.body = '';
