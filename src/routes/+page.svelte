@@ -18,8 +18,8 @@
   $: console.log(poems);
 
   function savePoem() {
-    if (editordiv) {
-      currentPoem.body = editordiv.innerHTML;
+    if (editorpre) {
+      currentPoem.body = editorpre.innerHTML;
     }
 
     if (newPoem) {
@@ -105,6 +105,7 @@
 
 
   function createPoem() {
+    console.log("CREATING NEW POEM")
     newPoem = true;
     currentPoem.name = 'New Poem';
     currentPoem.body = '';
