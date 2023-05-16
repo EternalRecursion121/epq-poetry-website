@@ -22,14 +22,36 @@
     }
 
     function wrapWords() {
-        editordiv.innerHTML = editordiv.innerHTML.replace(/<\/?span[^>]*>/g, '');
-        editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]+)([^<>\s]+)/g, '$1<span class="word">$2</span>');
-        editordiv.innerHTML = editordiv.innerHTML
+        unwrapWords();
+        editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]+)(([^<>\s&]|&(?!nbsp;))+)/g, '$1<span class="word">$2</span>');
+        editordiv.innerHTML = editordiv.innerHTML;
+        addEventListenersToSpans();
     }
 
-    $: if (editordiv && mode === 4) {
-        wrapWords();
+    function unwrapWords() {
+        editordiv.innerHTML = editordiv.innerHTML.replace(/<\/?span[^>]*>/g, '');
     }
+
+    function addEventListenersToSpans() {
+        const spanElements = editordiv.querySelectorAll('span');
+
+        spanElements.forEach((span) => {
+            span.addEventListener('click', (e) => {
+                console.log('Clicked:', e.target);
+                // Add your custom logic for when the span is clicked
+            });
+        });
+    }
+
+    $: if (editordiv) {
+        console.log(mode)
+        if (mode === 4) {
+            wrapWords();
+        } else {
+            unwrapWords();
+            console.log("unwrapped")
+        }
+    } 
 
 </script>
 

@@ -71,7 +71,7 @@
                 {#each Object.entries(poems) as [id, poem]}
                     <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center py-1 hover:bg-gray-200" on:click={()=>{openPoem(id)}}>
                         <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
-                        <span class="text-lg">{poem.name}</span>
+                        <span>{poem.name}</span>
                         <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click|stopPropagation={()=>{deletePoem(id)}}>delete</span>
                     </button>
                 {/each}
