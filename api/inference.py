@@ -16,5 +16,14 @@ def predict_mask(text, n=5):
     return list(zip([tokenizer.decode([token_id]) for token_id in top_token_ids], top_token_probs))
 
 
-
-
+if __name__=="__main__":
+    ## Testing
+    print(predict_mask("I love to <mask>"))
+    print(predict_mask("Paris is the capital of <mask>"))
+    print(predict_mask("<mask> is the capital of Italy."))
+    ## Measure speed
+    import time
+    start = time.time()
+    for i in range(100):
+        predict_mask("Paris is the capital of <mask>")
+    print(time.time() - start)
