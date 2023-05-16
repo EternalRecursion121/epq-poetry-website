@@ -41,6 +41,8 @@
 
         spanElements.forEach((span, index) => {
             span.addEventListener('click', (e) => {
+                spanElements.forEach((span) => span.classList.remove('selected')); // Remove the class from all words
+                span.classList.add('selected'); // Add the class to the selected word
                 selectedWordIndex = index;
                 dispatch('wordSelected', { index });
             });
@@ -66,6 +68,13 @@
 
 <style lang="postcss">
     .editordiv :global(.word) {
-        @apply border px-1 border-gray-700 bg-black bg-opacity-0 hover:bg-opacity-10 cursor-pointer;
+        @apply border border-gray-700 px-2 my-1 bg-black bg-opacity-0 cursor-pointer;
+    }
+
+    .editordiv :global(.word:not(.selected)) {
+        @apply hover:hover:bg-opacity-10;
+    }
+    .editordiv :global(.selected) {
+        @apply bg-gray-600 text-white;
     }
 </style>

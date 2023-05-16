@@ -10,6 +10,10 @@
     export let currentPoem: Object;
     export let command: string;
 
+    import { createEventDispatcher } from "svelte";
+
+    const dispatch = createEventDispatcher();
+
     function openPoem(id: string) {
         newPoem = false;
         currentPoem = poems[id];
@@ -32,6 +36,24 @@
         });
     }
 
+    async function suggestReplacement() {
+        if (selectedPoemId) {
+            const response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                body: `Date Published: 2022|Title:${currentPoem.title}|</s>${currentPoem.body}`,
+            });
+            if (response.ok) {
+                suggestions = await response.json();
+                dispatch('suggestions', { suggestions });
+            }
+        }
+    }
+
+
 </script>
 
 <svelte:head>
@@ -41,7 +63,6 @@
 <div class="sidebar" class:open>
     <div class="flex flex-col border-r items-center border-gray-400 w-[65px] h-full fixed">
         <span class:-scale-x-100={!open} class="transition-transform duration-300 ease-in-out justify-start material-symbols-sharp hover:cursor-pointer w-10 h-10 rounded-full mt-5" style="font-size:40px" on:click={()=>{open=!open}}>chevron_left</span>
-
         
         <div class:bg-[#FFE08D]="{mode === 1}" class="hover:cursor-pointer flex w-full h-[53px] justify-center items-center mt-auto" on:click={()=>{mode=1}}>
             <span class='material-symbols-sharp' style="font-size:33px">lightbulb</span>
@@ -78,8 +99,14 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
-                
-                 
+                {#if mode === 4}
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 35px;">compare_arrows</span>
+                        <span class="ml-2">Suggest Replacement</span>
+                    </button>
+                {/if}
+
+
   
             {/if}
         </div>
