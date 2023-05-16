@@ -77,7 +77,7 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
-            
+                 
   
             {/if}
         </div>
@@ -98,7 +98,7 @@
         position: fixed;
         width: 65px;
         height: 100%;
-        transition: all 0.5s; }
+            transition: all 0.5s; }
 
     .sidebar.open {
         width: 250px;
