@@ -2,10 +2,13 @@
     export let mode: number;
     export let currentPoem: Object;
     export let editordiv: null|HTMLDivElement = null;
-    let loaded = false;
-    let selectedWord: string|null = null;
+    export let selectedWordIndex: number|null = null;
 
-    import { onMount } from 'svelte';
+    let loaded = false;
+
+    import { onMount, createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     function setInnerHTML(newHTML: string) {
         editordiv.innerHTML = newHTML.replace(/\n/g, "<br>");
@@ -36,10 +39,10 @@
     function addEventListenersToSpans() {
         const spanElements = editordiv.querySelectorAll('span');
 
-        spanElements.forEach((span) => {
+        spanElements.forEach((span, index) => {
             span.addEventListener('click', (e) => {
-                console.log('Clicked:', e.target);
-                // Add your custom logic for when the span is clicked
+                selectedWordIndex = index;
+                dispatch('wordSelected', { index });
             });
         });
     }

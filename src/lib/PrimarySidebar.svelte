@@ -8,6 +8,7 @@
     export let savePoem: Function;
     export let newPoem: boolean;
     export let currentPoem: Object;
+    export let command: string;
 
     function openPoem(id: string) {
         newPoem = false;
@@ -77,6 +78,7 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
+                
                  
   
             {/if}

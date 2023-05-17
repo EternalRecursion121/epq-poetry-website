@@ -52,6 +52,6 @@ def delete_poem(poem_id: str):
     save_poems()
     return {"poem_id": poem_id}
 
-@app.post("/mask-suggestions")
-def get_mask_suggestions(poem_str):
-    return predict_mask(poem_str)
+@app.post("/suggest_replacement")
+def suggest_replacement(poem_str):
+    return {"suggestions": predict_mask(poem_str)}

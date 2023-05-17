@@ -13,13 +13,14 @@
   let selectedPoemId: string;
   const modes = ["planning", "reading", "writing", "editing"];
   let poems: Record<string, Object> = {};
-  let editordiv:HTMLPreElement;
+  let editordiv:HTMLDivElement;
+  let selectedWordIndex:number|null = null;
 
   $: console.log(poems);
 
   function savePoem() {
-    if (editorpre) {
-      currentPoem.body = editorpre.innerHTML;
+    if (editordiv) {
+      currentPoem.body = editordiv.innerHTML;
     }
 
     if (newPoem) {
@@ -51,7 +52,6 @@
     poems = poems;
   }
 
-  
   
   function onKeyPress(e: KeyboardEvent) {
     if (e.getModifierState('Alt')) {
@@ -117,9 +117,9 @@
 </script>
 
 <div>
-  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem/>
+  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem bind:command/>
   <div class="main-section" class:sidebar-open={pSidebarOpen}>
-    <Editor bind:mode bind:currentPoem bind:editordiv={editordiv}/>
+    <Editor bind:mode bind:currentPoem bind:editordiv bind:selectedWordIndex/>
   </div>
   <RightSidebar {command}/>
 </div>
