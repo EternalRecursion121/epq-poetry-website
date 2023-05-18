@@ -12,6 +12,7 @@
 
     import { commandStore } from './store.js';
 
+
     function openPoem(id: string) {
         newPoem = false;
         currentPoem = poems[id];
@@ -49,7 +50,7 @@
                     if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
                         if (i === selectedWordIndex) {
                             selectedWord = match;
-                            poem_str += '<mask>';
+                            poem_str += '<mask>'*($commandStore.numTokens||1);
                         } else {
                             poem_str += match;
                         }

@@ -9,6 +9,7 @@
     let suggestions = [];
     let selectedWord: string|null = null;
     let command: string|null = null;
+    let numTokens = 1;
 
     let unsubscribe = commandStore.subscribe(value => {
         command = value.command;
@@ -25,6 +26,8 @@
     onDestroy(() => {
         unsubscribe();
     });
+
+    $: commandStore.set({ ...$commandStore, numTokens: numTokens });
 </script>
 
 <div class="right-sidebar" class:open={pSidebarOpen && command}>
@@ -36,6 +39,10 @@
     {:else if command === "suggestions"}
         <h2 class="font-bold text-lg">Word Suggestions</h2>
         <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
+        <label>
+            Number of tokens to generate:<br>
+            <input class="mb-3 bg-gray-50" type="number" min="1" bind:value={numTokens}>
+        </label>
         <div class="suggestions-list">
             {#each suggestions as [suggestion, probability]}
                 <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:suggestion})}>

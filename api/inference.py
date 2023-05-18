@@ -35,18 +35,29 @@ punctuation_ids = [tokenizer.encode(p)[1] for p in string.punctuation if len(tok
 def predict_mask(text, n=5, include_punctuation=False):
     inputs = tokenizer(text, return_tensors="tf")
     predictions = model(inputs)[0]
-    mask_token_index = tf.where(inputs["input_ids"][0] == tokenizer.mask_token_id)
-    mask_token_logits = predictions[0, mask_token_index[0][0], :]
-    mask_token_probs = tf.nn.softmax(mask_token_logits, axis=-1)
+    mask_token_indices = tf.where(inputs["input_ids"][0] == tokenizer.mask_token_id)
 
-    if not include_punctuation:
-        mask = tf.constant([False if i in punctuation_ids else True for i in range(mask_token_probs.shape[0])])
-        mask_token_probs = tf.where(mask, mask_token_probs, -tf.float32.max)
+    total_probs = None
+
+    for mask_token_index in mask_token_indices:
+        mask_token_logits = predictions[0, mask_token_index[0], :]
+        mask_token_probs = tf.nn.softmax(mask_token_logits, axis=-1)
+
+        if not include_punctuation:
+            mask = tf.constant([False if i in punctuation_ids else True for i in range(mask_token_probs.shape[0])])
+            mask_token_probs = tf.where(mask, mask_token_probs, -tf.float32.max)
+
+        if total_probs is None:
+            total_probs = mask_token_probs
+        else:
+            total_probs += mask_token_probs
+    
+    mean_token_probs = total_probs / len(mask_token_indices)
 
     top_tokens = tf.math.top_k(mask_token_probs, n)
     top_token_ids = top_tokens.indices.numpy()
     top_token_probs = top_tokens.values.numpy()
-    return list(zip([tokenizer.decode([token_id]) for token_id in top_token_ids], map(float, top_token_probs)))
+    return list(zip(''.join(tokenizer.decode([token_id]) for token_id in top_token_ids), map(float, mean_token_probs)))
 
 
 
