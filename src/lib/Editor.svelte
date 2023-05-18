@@ -97,6 +97,6 @@
     }
 
     .editordiv :global(.editing) {
-        @apply border-yellow-600;
+        @apply bg-gray-200 text-black border-none;
     }
 </style>

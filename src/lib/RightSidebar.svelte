@@ -27,7 +27,13 @@
         unsubscribe();
     });
 
-    $: commandStore.set({ ...$commandStore, numTokens: numTokens });
+    $: {
+        if (numTokens !== $commandStore.numTokens) {
+            commandStore.update(store => ({...store, numTokens}));
+            console.log("Updated")
+            console.log($commandStore)
+        }
+    }
 </script>
 
 <div class="right-sidebar" class:open={pSidebarOpen && command}>
@@ -40,16 +46,20 @@
         <h2 class="font-bold text-lg">Word Suggestions</h2>
         <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
         <label>
-            Number of tokens to generate:<br>
+            Number of tokens to generate (anything above 1 will only generate 1 suggestion):<br>
             <input class="mb-3 bg-gray-50" type="number" min="1" bind:value={numTokens}>
         </label>
         <div class="suggestions-list">
-            {#each suggestions as [suggestion, probability]}
-                <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:suggestion})}>
-                    <p>Suggested Word: <span>{suggestion}</span></p>
-                    <p>Probability: <span>{probability.toFixed(2)}</span></p>
-                </button>
-            {/each}
+            {#if typeof suggestions[0] !== "string"}
+                {#each suggestions as [suggestion, probability]}
+                    <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:suggestion})}>
+                        <p>Suggested Word: <span>{suggestion}</span></p>
+                        <p>Probability: <span>{probability.toFixed(2)}</span></p>
+                    </button>
+                {/each}
+            {:else}
+                <p>Suggestion: {suggestions.join("")}</p>
+            {/if}
         </div>
         <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
     {/if}

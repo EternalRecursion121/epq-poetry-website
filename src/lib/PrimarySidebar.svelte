@@ -36,7 +36,10 @@
     }
 
     async function suggestReplacement() {
-        commandStore.set({ command: 'generating' });
+        commandStore.update(store => {
+            store.command = 'loading';
+            return store;
+        });
         if (selectedPoemId) {
             // Create a RegExp to match any kind of whitespace or non-whitespace (words)
             let matches = currentPoem.body.match(/(\s+|\S+)/g);
@@ -50,7 +53,7 @@
                     if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
                         if (i === selectedWordIndex) {
                             selectedWord = match;
-                            poem_str += '<mask>'*($commandStore.numTokens||1);
+                            poem_str += '<mask>'.repeat($commandStore.numTokens||1);
                         } else {
                             poem_str += match;
                         }
@@ -62,18 +65,32 @@
             }
 
             if (!selectedWord) {
-                poem_str += '<mask>';
+                poem_str += '<mask>'.repeat($commandStore.numTokens||1);
             }
-            const response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                body: JSON.stringify({poem_str}),
-            });
+            let response;
+            console.log(commandStore.numTokens)
+            if ($commandStore.numTokens && $commandStore.numTokens > 1) {
+                response = await fetch(`http://127.0.0.1:8000/suggest_replacement_multi`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    body: JSON.stringify({poem_str}),
+                });
+            } else {
+                response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    body: JSON.stringify({poem_str}),
+                });
+            }
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 commandStore.set({ command: 'suggestions', selectedWord, suggestions:data.suggestions });
             }
         }
