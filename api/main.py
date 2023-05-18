@@ -53,5 +53,6 @@ def delete_poem(poem_id: str):
     return {"poem_id": poem_id}
 
 @app.post("/suggest_replacement")
-def suggest_replacement(poem_str: str):
-    return {"suggestions": predict_mask(poem_str)}
+def suggest_replacement(data: dict):
+    suggestions = predict_mask(data["poem_str"])
+    return {"suggestions": predict_mask(data["poem_str"])}

@@ -13,7 +13,7 @@ def predict_mask(text, n=5):
     top_tokens = tf.math.top_k(mask_token_probs, n)
     top_token_ids = top_tokens.indices.numpy()
     top_token_probs = top_tokens.values.numpy()
-    return list(zip([tokenizer.decode([token_id]) for token_id in top_token_ids], top_token_probs))
+    return list(zip([tokenizer.decode([token_id]) for token_id in top_token_ids], map(float, top_token_probs)))
 
 
 if __name__=="__main__":

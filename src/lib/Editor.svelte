@@ -50,7 +50,6 @@
     }
 
     $: if (editordiv) {
-        console.log(mode)
         if (mode === 4) {
             wrapWords();
         } else {

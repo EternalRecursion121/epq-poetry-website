@@ -9,6 +9,7 @@
     export let newPoem: boolean;
     export let currentPoem: Object;
     export let command: string;
+    export let selectedWordIndex: number|null;
 
     import { createEventDispatcher } from "svelte";
 
@@ -30,7 +31,7 @@
         }).then(res => {
             if (res.ok) {
                 delete poems[id];
-                poems = poems;
+                poems = { ...poems };
                 selectedPoemId = '';
             }
         });
@@ -38,27 +39,52 @@
 
     async function suggestReplacement() {
         if (selectedPoemId) {
+            // Create a RegExp to match any kind of whitespace or non-whitespace (words)
+            let matches = currentPoem.body.match(/(\s+|\S+)/g);
+
+
+            let selectedWord;
+            let i = 0;
+            let poem_str = `Date Published: 2022|Title:${currentPoem.name}|</s>`;
+             if (matches) {
+                for (const match of matches) {
+                    if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
+                        if (i === selectedWordIndex) {
+                            selectedWord = match;
+                            poem_str += '<mask>';
+                        } else {
+                            poem_str += match;
+                        }
+                        i++;
+                    } else { // If the match is whitespace
+                        poem_str += match;
+                    }
+                }
+            }
+
+            if (!selectedWord) {
+                poem_str += '<mask>';
+            }
+            console.log("Selected word index: " + selectedWordIndex)
+            console.log(poem_str)
             const response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',
                 },
-                body: `Date Published: 2022|Title:${currentPoem.title}|</s>${currentPoem.body}`,
+                body: JSON.stringify({poem_str}),
             });
             if (response.ok) {
-                suggestions = await response.json();
-                dispatch('suggestions', { suggestions });
+                const suggestions = await response.json();
+                console.log(suggestions);
+                dispatch('suggestions', { selectedWord, suggestions });
             }
         }
     }
 
 
 </script>
-
-<svelte:head>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,0,0" />
-</svelte:head>
 
 <div class="sidebar" class:open>
     <div class="flex flex-col border-r items-center border-gray-400 w-[65px] h-full fixed">
