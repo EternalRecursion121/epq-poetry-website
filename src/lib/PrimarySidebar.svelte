@@ -8,12 +8,9 @@
     export let savePoem: Function;
     export let newPoem: boolean;
     export let currentPoem: Object;
-    export let command: string;
     export let selectedWordIndex: number|null;
 
-    import { createEventDispatcher } from "svelte";
-
-    const dispatch = createEventDispatcher();
+    import { commandStore } from './store.js';
 
     function openPoem(id: string) {
         newPoem = false;
@@ -38,6 +35,7 @@
     }
 
     async function suggestReplacement() {
+        commandStore.set({ command: 'generating' });
         if (selectedPoemId) {
             // Create a RegExp to match any kind of whitespace or non-whitespace (words)
             let matches = currentPoem.body.match(/(\s+|\S+)/g);
@@ -46,7 +44,7 @@
             let selectedWord;
             let i = 0;
             let poem_str = `Date Published: 2022|Title:${currentPoem.name}|</s>`;
-             if (matches) {
+            if (matches) {
                 for (const match of matches) {
                     if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
                         if (i === selectedWordIndex) {
@@ -65,8 +63,6 @@
             if (!selectedWord) {
                 poem_str += '<mask>';
             }
-            console.log("Selected word index: " + selectedWordIndex)
-            console.log(poem_str)
             const response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
                 method: 'POST',
                 headers: {
@@ -76,13 +72,18 @@
                 body: JSON.stringify({poem_str}),
             });
             if (response.ok) {
-                const suggestions = await response.json();
-                console.log(suggestions);
-                dispatch('suggestions', { selectedWord, suggestions });
+                const data = await response.json();
+                commandStore.set({ command: 'suggestions', selectedWord, suggestions:data.suggestions });
             }
         }
     }
 
+    let prev = 0;
+
+    $: if ($commandStore.command === 'suggestions' && selectedWordIndex !== prev) {
+        suggestReplacement();
+        prev = selectedWordIndex;
+    }
 
 </script>
 
@@ -153,7 +154,7 @@
         position: fixed;
         width: 65px;
         height: 100%;
-            transition: all 0.5s; }
+        transition: all 0.5s; }
 
     .sidebar.open {
         width: 250px;

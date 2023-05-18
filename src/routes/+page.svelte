@@ -7,7 +7,6 @@
   import { onMount } from "svelte";
   let pSidebarOpen = true;
   let mode = 1;
-  let command = '';
   let newPoem = true;
   let currentPoem = {};
   let selectedPoemId: string;
@@ -15,6 +14,7 @@
   let poems: Record<string, Object> = {};
   let editordiv:HTMLDivElement;
   let selectedWordIndex:number|null = null;
+  let replaceWord: () => void;
 
   $: console.log(poems);
 
@@ -122,11 +122,11 @@
 </svelte:head>
 
 <div>
-  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem bind:command {selectedWordIndex}/>
+  <PrimarySidebar bind:open={pSidebarOpen} bind:mode bind:newPoem {poems} {createPoem} bind:selectedPoemId {savePoem} bind:currentPoem {selectedWordIndex}/>
   <div class="main-section" class:sidebar-open={pSidebarOpen}>
-    <Editor bind:mode bind:currentPoem bind:editordiv bind:selectedWordIndex/>
+    <Editor bind:mode bind:currentPoem bind:editordiv bind:selectedWordIndex bind:replaceWord/>
   </div>
-  <RightSidebar {command}/>
+  <RightSidebar {pSidebarOpen} on:replaceWord={(e) => replaceWord(e.detail.word)}/>
 </div>
 
 <style lang="postcss">
@@ -143,14 +143,14 @@
     min-height: 100vh;
     top: 0;
     left: 65px;
-    width: calc(100% - 65px);
+    width: calc(100% - 65px - 350px);
     transition: all 0.5s ease;
     z-index: 2;
   }
 
   .main-section.sidebar-open{
     left: 250px;
-    width: calc(100% - 250px);
+    width: calc(100% - 250px - 350px);
   }
 </style>
   

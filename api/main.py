@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
 from inference import predict_mask
+import requests
 
 with open("data/poems.json") as f:
     poems = json.load(f)
@@ -54,5 +55,16 @@ def delete_poem(poem_id: str):
 
 @app.post("/suggest_replacement")
 def suggest_replacement(data: dict):
-    suggestions = predict_mask(data["poem_str"])
+    print(data["poem_str"])
     return {"suggestions": predict_mask(data["poem_str"])}
+
+@app.get("/synonyms/{word}")
+def get_synonyms(word: str):
+    response = requests.get(f"https://api.datamuse.com/words?rel_syn={word}")
+    return response.json()
+
+@app.get("/rhymes/{word}")
+def get_rhymes(word: str):
+    response = requests.get(f"https://api.datamuse.com/words?rel_rhy={word}")
+    return response.json()
+

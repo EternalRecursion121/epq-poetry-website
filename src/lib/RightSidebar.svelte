@@ -1,45 +1,77 @@
 <script lang="ts">
-    export let command: string;
+    import { onDestroy, createEventDispatcher } from 'svelte';
+    import { commandStore } from './store.js';
 
-    import { onMount } from "svelte";
+    export let pSidebarOpen: boolean;
 
-    let suggestions: Array<[string, number]> = [];
+    const dispatch = createEventDispatcher();
+    
+    let suggestions = [];
     let selectedWord: string|null = null;
+    let command: string|null = null;
 
-    const updateSuggestions = (event) => {
-        selectedWord = event.detail.selectedWord;
-        suggestions = event.detail.suggestions;
-    }
-
-    onMount(() => {
-        window.addEventListener('suggestions', updateSuggestions);
-        return () => {
-            window.removeEventListener('suggestions', updateSuggestions);
+    let unsubscribe = commandStore.subscribe(value => {
+        command = value.command;
+        selectedWord = value.selectedWord;
+        if (Array.isArray(value.suggestions)) {
+            suggestions = value.suggestions;
+        } else {
+            console.error('Invalid suggestions:', value.suggestions);
+            suggestions = [];
         }
+    });
+
+
+    onDestroy(() => {
+        unsubscribe();
     });
 </script>
 
-<div class="right-sidebar">
-    <h2>Word Suggestions</h2>
-    <p>Selected Word: {selectedWord}</p>
-    <div class="suggestions-list">
-        {#each suggestions as [suggestion, probability]}
-            <div class="suggestion-item">
-                <p>Suggested Word: {suggestion}</p>
-                <p>Probability: {probability}</p>
-            </div>
-        {/each}
-    </div>
+<div class="right-sidebar" class:open={pSidebarOpen && command}>
+    {#if command === "generating"}
+        <h2 class="font-bold text-lg">Generating...</h2>
+    {:else if command === "error"}
+        <h2 class="font-bold text-lg">Error</h2>
+        <p>{selectedWord}</p>
+    {:else if command === "suggestions"}
+        <h2 class="font-bold text-lg">Word Suggestions</h2>
+        <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
+        <div class="suggestions-list">
+            {#each suggestions as [suggestion, probability]}
+                <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:suggestion})}>
+                    <p>Suggested Word: <span>{suggestion}</span></p>
+                    <p>Probability: <span>{probability.toFixed(2)}</span></p>
+                </button>
+            {/each}
+        </div>
+        <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
+    {/if}
 </div>
 
 <style lang="postcss">
     .right-sidebar {
-        @apply border-l border-gray-400;
+        @apply border-l border-gray-400 bg-gray-100 text-gray-700;
         position: fixed;
         right: 0;
-        width: 250px;
+        top: 0;
+        width: 350px;
         height: 100%;
         padding: 20px;
+        overflow-y: auto;
+        transform: translateX(100%);
+        transition: all 0.4s ease;
+    }
+
+    .right-sidebar.open {
+        @apply transform-none;
+    }
+
+    .selected-word {
+        @apply font-medium mb-3;
+    }
+
+    .selected-word span {
+        @apply font-bold text-blue-600;
     }
 
     .suggestions-list {
@@ -49,8 +81,32 @@
     }
 
     .suggestion-item {
-        border: 1px solid gray;
-        border-radius: 5px;
-        padding: 10px;
+        @apply bg-white shadow-sm rounded-md p-3 cursor-pointer;
+        transition: all 0.3s ease;
+    }
+
+    .suggestion-item:hover {
+        @apply shadow-lg transform bg-gray-200;
+    }
+
+    .suggestion-item p {
+        @apply mb-1;
+    }
+
+    .suggestion-item p:last-child {
+        @apply mb-0;
+    }
+
+    .suggestion-item span {
+        @apply font-semibold;
+    }
+
+    .revert-button {
+        @apply bg-blue-500 text-white px-3 py-1 rounded my-4 cursor-pointer;
+        transition: all 0.3s ease;
+    }
+
+    .revert-button:hover {
+        @apply bg-blue-600;
     }
 </style>

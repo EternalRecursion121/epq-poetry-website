@@ -6,9 +6,17 @@
 
     let loaded = false;
 
-    import { onMount, createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
 
-    const dispatch = createEventDispatcher();
+    export const replaceWord = (word) => {
+        console.log(selectedWordIndex);
+        if (selectedWordIndex !== null) {
+            const spanElements = editordiv.querySelectorAll('span');
+            const selectedWord = spanElements[selectedWordIndex];
+            console.log(selectedWord.innerHTML);
+            selectedWord.innerHTML = word;
+        }
+    }
 
     function setInnerHTML(newHTML: string) {
         editordiv.innerHTML = newHTML.replace(/\n/g, "<br>");
@@ -27,8 +35,9 @@
 
     function wrapWords() {
         unwrapWords();
-        editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]+)(([^<>\s&]|&(?!nbsp;))+)/g, '$1<span class="word">$2</span>');
+        editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]|&nbsp;)(([^<>\s&]|&(?!nbsp;))+)/g, '$1<span class="word">$2</span>');
         editordiv.innerHTML = editordiv.innerHTML;
+        currentPoem.body = editordiv?.innerText;
         addEventListenersToSpans();
     }
 
@@ -44,7 +53,18 @@
                 spanElements.forEach((span) => span.classList.remove('selected')); // Remove the class from all words
                 span.classList.add('selected'); // Add the class to the selected word
                 selectedWordIndex = index;
-                dispatch('wordSelected', { index });
+            });
+
+            span.addEventListener('dblclick', (e) => {
+                e.target.contentEditable = 'true';
+                e.target.focus();
+                e.target.classList.add('editing');
+            });
+            
+            span.addEventListener('blur', (e) => {
+                e.target.contentEditable = 'false';
+                e.target.classList.remove('editing');
+                replaceWord(e.target.innerHTML);
             });
         });
     }
@@ -54,15 +74,14 @@
             wrapWords();
         } else {
             unwrapWords();
-            console.log("unwrapped")
         }
     } 
 
 </script>
 
-<div class="h-screen p-4">
+<div class="p-4">
     <input class="text-3xl font-bold w-full h-14 bg-transparent outline-none" bind:value={currentPoem.name} readonly={mode === 2}>
-    <div class="block w-full h-full pl-1 py-4 bg-gray-100 text-gray-900 focus:outline-none focus:border-transparent overflow-y-hidden font-sans editordiv" bind:this={editordiv} contenteditable={mode!==2 && mode!==4}></div>
+    <div class="block w-full h-full pl-1 py-4 bg-gray-100 text-gray-900 focus:outline-none focus:border-transparent overflow-y-hidden font-sans editordiv min-h-400" bind:this={editordiv} contenteditable={mode!==2 && mode!==4}></div>
 </div>
 
 <style lang="postcss">
@@ -75,5 +94,9 @@
     }
     .editordiv :global(.selected) {
         @apply bg-gray-600 text-white;
+    }
+
+    .editordiv :global(.editing) {
+        @apply border-yellow-600;
     }
 </style>
