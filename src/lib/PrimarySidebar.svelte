@@ -144,15 +144,64 @@
         }
     }
 
+    async function getRhymes() {
+        commandStore.update(store => {
+            store.command = 'loading';
+            return store;
+        });
+        if (selectedPoemId) {
+            let matches = currentPoem.body.match(/(\s+|\S+)/g);
+            let selectedWord;
+            let lc;
+            let rc;
+            let i = 0;
+            if (matches) {
+                for (const match of matches) {
+                    if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
+                        if (i === selectedWordIndex - 1) {
+                            lc = match.replace(/[^a-zA-Z]/g, '');
+                        } else if (i === selectedWordIndex) {
+                            selectedWord = match.replace(/[^a-zA-Z]/g, '');
+                        } else if (i === selectedWordIndex + 1) {
+                            rc = match.replace(/[^a-zA-Z]/g, '');
+                            break;
+                        }
+                        i++;
+                    }
+                }
+            }
+
+            if (selectedWord) {
+                let req_url = `http://127.0.0.1:8000/rhymes?word=${selectedWord}`;
+                if (lc) {
+                    req_url += `&lc=${lc}`
+                }
+                if (rc) {
+                    req_url += `&rc=${rc}`
+                }
+                let response = await fetch(req_url);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    commandStore.set({ command: 'rhymes', selectedWord, rhymes: data });
+                }
+            } 
+        }
+    }
+
     let prev = 0;
 
-    $: if ($commandStore.command === 'suggestions' && selectedWordIndex !== prev) {
-        suggestReplacement();
-        prev = selectedWordIndex;
-    } else if ($commandStore.command === 'synonyms' && selectedWordIndex !== prev) {
-        getSynonyms();
+    $: if (selectedWordIndex !== prev) {
+        if ($commandStore.command === 'suggestions') {
+            suggestReplacement();
+        } else if ($commandStore.command === 'synonyms') {
+            getSynonyms();
+        } else if ($commandStore.command === 'rhymes') {
+            getRhymes();
+        }
         prev = selectedWordIndex;
     }
+
 
 </script>
 
@@ -195,7 +244,9 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
-                {#if mode === 4}
+                {#if mode === 3}
+                    
+                {:else if mode === 4}
                     <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 35px;">compare_arrows</span>
                         <span class="ml-2">Suggest Replacement</span>
@@ -203,6 +254,10 @@
                     <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getSynonyms}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">autorenew</span>
                         <span class="ml-2">Get Synonyms</span>
+                    </button>
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">music_note</span>
+                        <span class="ml-2">Get Rhymes</span>
                     </button>
                 {/if}
 

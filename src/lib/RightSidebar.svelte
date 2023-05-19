@@ -8,6 +8,7 @@
     
     let suggestions = [];
     let synonyms = [];
+    let rhymes = [];
     let selectedWord: string|null = null;
     let command: string|null = null;
     let numTokens = 1;
@@ -28,6 +29,13 @@
             } else {
                 console.error('Invalid synonyms:', value.synonyms);
                 synonyms = [];
+            }
+        } else if (command === "rhymes") {
+            if (Array.isArray(value.rhymes)) {
+                rhymes = value.rhymes;
+            } else {
+                console.error('Invalid rhymes:', value.rhymes);
+                rhymes = [];
             }
         }
     });
@@ -78,7 +86,19 @@
         <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
         <div class="suggestions-list">
             {#each synonyms as {word, score}}
-                <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:synonym})}>
+                <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:word})}>
+                    <p>Synonym: <span>{word}</span></p>
+                    <p>Score: <span>{score}</span></p>
+                </button>
+            {/each}
+        </div>
+        <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
+    {:else if command === "rhymes"}
+        <h2 class="font-bold text-lg">Rhymes</h2>
+        <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
+        <div class="suggestions-list">
+            {#each rhymes as {word, score}}
+                <button class="suggestion-item" on:click={() => dispatch("replaceWord", { word })}>
                     <p>Synonym: <span>{word}</span></p>
                     <p>Score: <span>{score}</span></p>
                 </button>
