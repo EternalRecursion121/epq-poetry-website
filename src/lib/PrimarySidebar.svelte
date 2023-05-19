@@ -10,7 +10,8 @@
     export let currentPoem: Object;
     export let selectedWordIndex: number|null;
 
-    import { commandStore } from './store.js';
+    import { commandStore } from './store.ts';
+    import { env } from '$env/dynamic/public';
 
 
     function openPoem(id: string) {
@@ -23,7 +24,7 @@
     }
 
     function deletePoem(id: string) {
-        fetch('http://127.0.0.1:8000/poems/' + id , {
+        fetch(`${env.PUBLIC_SERVER_URL}/poems/` + id , {
             method: 'DELETE',
             headers: {
             'Content-Type': 'application/json',
@@ -72,7 +73,7 @@
             }
             let response;
             if ($commandStore.numTokens && $commandStore.numTokens > 1) {
-                response = await fetch(`http://127.0.0.1:8000/suggest_replacement_multi`, {
+                response = await fetch(`${env.PUBLIC_SERVER_URL}/suggest_replacement_multi`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -81,7 +82,7 @@
                     body: JSON.stringify({poem_str}),
                 });
             } else {
-                response = await fetch(`http://127.0.0.1:8000/suggest_replacement`, {
+                response = await fetch(`${env.PUBLIC_SERVER_URL}/suggest_replacement`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -128,7 +129,7 @@
             console.log("SELECTED_WORD")
 
             if (selectedWord) {
-                let req_url = `http://127.0.0.1:8000/synonyms?word=${selectedWord}`;
+                let req_url = `${env.PUBLIC_SERVER_URL}/synonyms?word=${selectedWord}`;
                 if (lc) {
                     req_url += `&lc=${lc}`
                 }
@@ -173,7 +174,7 @@
             }
 
             if (selectedWord) {
-                let req_url = `http://127.0.0.1:8000/rhymes?word=${selectedWord}`;
+                let req_url = `${env.PUBLIC_SERVER_URL}/rhymes?word=${selectedWord}`;
                 if (lc) {
                     req_url += `&lc=${lc}`
                 }

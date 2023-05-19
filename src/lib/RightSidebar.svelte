@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, createEventDispatcher } from 'svelte';
-    import { commandStore } from './store.js';
+    import { commandStore } from './store.ts';
 
     export let pSidebarOpen: boolean;
 

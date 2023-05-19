@@ -3,8 +3,10 @@
   import PrimarySidebar from "$lib/PrimarySidebar.svelte";
   import Editor from "$lib/Editor.svelte";
   import RightSidebar from "$lib/RightSidebar.svelte";
+  import { env } from '$env/dynamic/public';
 
   import { onMount } from "svelte";
+
   let pSidebarOpen = true;
   let mode = 1;
   let newPoem = true;
@@ -24,7 +26,7 @@
     }
 
     if (newPoem) {
-      fetch('http://127.0.0.1:8000/poems', {
+      fetch(`${env.PUBLIC_SERVER_URL}/poems`, {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
@@ -38,7 +40,7 @@
       });
       newPoem = false;
     } else {
-        fetch('http://127.0.0.1:8000/poems/' + selectedPoemId, {
+        fetch(`${env.PUBLIC_SERVER_URL}/poems/` + selectedPoemId, {
             method: 'PUT',
             headers: {
             'Content-Type': 'application/json',
@@ -92,7 +94,7 @@
   onMount(() => {
     document.addEventListener('keydown', onKeyPress);
 
-    fetch('https://178e-51-182-252-33.ngrok-free.app/poems',
+    fetch(`${env.PUBLIC_SERVER_URL}/poems`,
       {
         method: 'GET',
         headers: {
