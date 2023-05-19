@@ -14,9 +14,12 @@
 
 
     function openPoem(id: string) {
+        console.log("POEMS", poems)
         newPoem = false;
-        currentPoem = poems[id];
+        currentPoem = { ...poems[id] };
         selectedPoemId = id;
+        console.log(poems)
+        console.log("openPoem", id, poems[id]);
     }
 
     function deletePoem(id: string) {
@@ -68,7 +71,6 @@
                 poem_str += '<mask>'.repeat($commandStore.numTokens||1);
             }
             let response;
-            console.log(commandStore.numTokens)
             if ($commandStore.numTokens && $commandStore.numTokens > 1) {
                 response = await fetch(`http://127.0.0.1:8000/suggest_replacement_multi`, {
                     method: 'POST',
@@ -98,7 +100,6 @@
 
 
     async function getSynonyms() {
-        console.log("CALLED")
         commandStore.update(store => {
             store.command = 'loading';
             return store;
@@ -231,7 +232,7 @@
             <div class="flex flex-row justify-between items-center">
                 <span on:click={() => {sidebarMode = 'files'}} class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">folder</span>
                 <span on:click={() => {sidebarMode = 'command'}} class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:29px">keyboard_command_key</span>
-                <span on:click={() => {selectedPoemId=null; createPoem}} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
+                <span on:click={() => {selectedPoemId=null; createPoem()}} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
             {#if sidebarMode === 'files'}
             <div class="flex flex-col my-2">

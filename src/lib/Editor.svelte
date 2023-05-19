@@ -29,8 +29,14 @@
         loaded = true;
     });
     
+    let prevBody = "";
     $: if (loaded) {
-        setInnerHTML(currentPoem.body);
+        console.log(currentPoem.body)
+        if (currentPoem.body !== prevBody) {
+            console.log(currentPoem.body)
+            setInnerHTML(currentPoem.body);
+            prevBody = currentPoem.body;
+        }
     }
 
     function wrapWords() {

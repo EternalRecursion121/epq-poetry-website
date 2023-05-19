@@ -20,7 +20,7 @@
 
   function savePoem() {
     if (editordiv) {
-      currentPoem.body = editordiv.innerHTML;
+      currentPoem.body = editordiv.innerText;
     }
 
     if (newPoem) {
@@ -92,7 +92,7 @@
   onMount(() => {
     document.addEventListener('keydown', onKeyPress);
 
-    fetch('http://127.0.0.1:8000/poems',
+    fetch('https://178e-51-182-252-33.ngrok-free.app/poems',
       {
         method: 'GET',
         headers: {
