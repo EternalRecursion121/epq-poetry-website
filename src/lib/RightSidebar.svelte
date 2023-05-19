@@ -7,6 +7,7 @@
     const dispatch = createEventDispatcher();
     
     let suggestions = [];
+    let synonyms = [];
     let selectedWord: string|null = null;
     let command: string|null = null;
     let numTokens = 1;
@@ -14,11 +15,20 @@
     let unsubscribe = commandStore.subscribe(value => {
         command = value.command;
         selectedWord = value.selectedWord;
-        if (Array.isArray(value.suggestions)) {
-            suggestions = value.suggestions;
-        } else {
-            console.error('Invalid suggestions:', value.suggestions);
-            suggestions = [];
+        if (command === "suggestions") {
+            if (Array.isArray(value.suggestions)) {
+                suggestions = value.suggestions;
+            } else {
+                console.error('Invalid suggestions:', value.suggestions);
+                suggestions = [];
+            }
+        } else if (command === "synonyms") {
+            if (Array.isArray(value.synonyms)) {
+                synonyms = value.synonyms;
+            } else {
+                console.error('Invalid synonyms:', value.synonyms);
+                synonyms = [];
+            }
         }
     });
 
@@ -60,6 +70,19 @@
             {:else}
                 <p>Suggestion: {suggestions.join("")}</p>
             {/if}
+        </div>
+        <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
+
+    {:else if command === "synonyms"}
+        <h2 class="font-bold text-lg">Synonyms</h2>
+        <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
+        <div class="suggestions-list">
+            {#each synonyms as {word, score}}
+                <button class="suggestion-item" on:click={() => dispatch("replaceWord", {word:synonym})}>
+                    <p>Synonym: <span>{word}</span></p>
+                    <p>Score: <span>{score}</span></p>
+                </button>
+            {/each}
         </div>
         <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
     {/if}

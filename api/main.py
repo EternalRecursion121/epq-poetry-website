@@ -65,10 +65,17 @@ def suggest_replacement_multi(data: dict):
 @app.get("/synonyms/{word}")
 def get_synonyms(word: str):
     response = requests.get(f"https://api.datamuse.com/words?rel_syn={word}")
-    return response.json()
+    print(response.json())
+    return response.json()[:5]
 
-@app.get("/rhymes/{word}")
-def get_rhymes(word: str):
-    response = requests.get(f"https://api.datamuse.com/words?rel_rhy={word}")
-    return response.json()
+@app.get("/rhymes/")
+def get_rhymes(word: str, lc: str = None, rc: str = None):
+    print(word)
+    req_url = f"https://api.datamuse.com/words?rel_rhy={word}"
+    if lc:
+        req_url += f"&lc={lc}"
+    if rc:
+        req_url += f"&rc={rc}"
+    response = requests.get(req_url)
+    return response.json()[:5]
 
