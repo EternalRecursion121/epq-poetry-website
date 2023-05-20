@@ -112,6 +112,10 @@
     newPoem = true;
     currentPoem.name = 'New Poem';
     currentPoem.body = '';
+    currentPoem.year = 2022;
+    currentPoem.themes = [];
+    currentPoem.form = '';
+    currentPoem.poet = '';
   }
 
   $: if (newPoem) {
@@ -136,10 +140,6 @@
     background-color: theme(colors.gray.100);
   }
 
-  * {
-    box-sizing: border-box;
-  }
-
   .main-section{
     position: relative;
     min-height: 100vh;
@@ -151,8 +151,8 @@
   }
 
   .main-section.sidebar-open{
-    left: 250px;
-    width: calc(100% - 250px - 350px);
+    left: 300px;
+    width: calc(100% - 300px - 350px);
   }
 </style>
   
