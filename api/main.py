@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
-# from inference import predict_mask, predict_mask_multi
+from inference import predict_mask, predict_mask_multi
 from gpt_commands import feedback, generate_metaphor, rewrite_line
 import requests
 
