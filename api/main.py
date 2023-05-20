@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
-from inference import predict_mask, predict_mask_multi
+# from inference import predict_mask, predict_mask_multi
+from gpt_commands import feedback, generate_metaphor, rewrite_line
 import requests
 
 with open("data/poems.json") as f:
@@ -82,3 +83,14 @@ def get_rhymes(word: str, lc: str = None, rc: str = None):
     response = requests.get(req_url)
     return response.json()[:5]
 
+@app.post("/feedback")
+def get_feedback(poem: dict):
+    return {"feedback": feedback(poem)}
+
+@app.post("/generate_metaphor")
+def get_generate_metaphor(poem: dict, literal_thing: str, compared_to: str):
+    return {"metaphor": generate_metaphor(poem, literal_thing, compared_to)}
+
+@app.post("/rewrite_line")
+def get_rewrite_line(poem: dict, line_index: int):
+    return {"rewrite": rewrite_line(poem, line_index)}

@@ -56,7 +56,8 @@
 
 <div class="right-sidebar" class:open={pSidebarOpen && command}>
     {#if command === "generating"}
-        <h2 class="font-bold text-lg">Generating...</h2>
+        <h2 class="font-bold text-lg">Generating<span class="ellipsis-anim">.</span></h2>
+        <h3 class="font-light">(may take a while for some)</h3>
     {:else if command === "error"}
         <h2 class="font-bold text-lg">Error</h2>
         <p>{selectedWord}</p>
@@ -105,6 +106,11 @@
             {/each}
         </div>
         <button class="revert-button" on:click={() => dispatch("replaceWord", {word:selectedWord})}>Revert</button>
+    {:else if command === "feedback"}
+        <h2 class="font-bold text-lg mb-2">Feedback</h2>
+        <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer">
+            <p>{@html $commandStore.feedback.replace(/\n/g, '<br>')}</p>
+        </div>   
     {/if}
 </div>
 
@@ -169,4 +175,16 @@
     .revert-button:hover {
         @apply bg-blue-600;
     }
+
+    .ellipsis-anim:after {
+        content: ".";
+        animation: ellipsis 1s infinite;
+    }
+
+    @keyframes ellipsis {
+        0%, 100% { content: ""; }
+        33% { content: "."; }
+        66% { content: ".."; }
+    }
+
 </style>
