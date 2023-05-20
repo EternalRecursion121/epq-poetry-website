@@ -13,7 +13,10 @@
     import { commandStore } from './store.ts';
     import { env } from '$env/dynamic/public';
     import params from './params.json';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
+    import MetaphorModal from './MetaphorModal.svelte';
+
+    let showModal = false;
 
     let search = '';
     let searchPoet = '';
@@ -268,6 +271,31 @@
         }
     }
 
+    async function metaphor(e) {
+        showModal = false;
+        const source = e.detail.source;
+        const target = e.detail.target;
+        commandStore.update(store => {
+            store.command = 'generating';
+            return store;
+        });
+
+        let response = await fetch(`${env.PUBLIC_SERVER_URL}/metaphors`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify({ "poem": currentPoem, source, target }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            commandStore.set({ command: 'metaphor', source, target, ...data });
+        }
+    }
+
     let prev = 0;
 
     $: if (selectedWordIndex !== prev) {
@@ -281,9 +309,39 @@
         prev = selectedWordIndex;
     }
 
+    function getLineRewrite() {
+        commandStore.update(store => {
+            store.command = 'rewriteLine';
+            return store;
+        });
+        const unsubscribe = commandStore.subscribe(async value => {
+            if (value.line) {
+                console.log({poem: currentPoem, line: value.line});
+                let response = await fetch(`${env.PUBLIC_SERVER_URL}/rewrite_line`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    body: JSON.stringify({poem: currentPoem, line: value.line}),
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    commandStore.set({ command: 'rewriteLine', line: value.line, rewrites: data.rewrite });
+                }
+                unsubscribe();
+            }
+        });
+    }
+
 
 
 </script>
+
+{#if showModal}
+    <MetaphorModal on:close={() => showModal = false} on:metaphor={metaphor}/>
+{/if}
 
 <div class="sidebar" class:open>
     <div class="flex flex-col border-r items-center border-gray-400 w-[65px] h-full fixed">
@@ -333,6 +391,10 @@
 
 
                 {:else if mode == 3}
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={() => {showModal=true}}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 27px;">hub</span>
+                        <span class="ml-2">Metaphor</span>
+                    </button>
 
                     
                 {:else if mode === 4}
@@ -347,6 +409,10 @@
                     <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">music_note</span>
                         <span class="ml-2">Get Rhymes</span>
+                    </button>
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getLineRewrite}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 25px;">edit_note</span>
+                        <span class="ml-2">Rewrite Line</span>
                     </button>
                 {/if}
             {:else if sidebarMode === 'params'}

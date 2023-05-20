@@ -87,10 +87,10 @@ def get_rhymes(word: str, lc: str = None, rc: str = None):
 def get_feedback(poem: dict):
     return {"feedback": feedback(poem)}
 
-@app.post("/generate_metaphor")
-def get_generate_metaphor(poem: dict, literal_thing: str, compared_to: str):
-    return {"metaphor": generate_metaphor(poem, literal_thing, compared_to)}
+@app.post("/metaphors")
+def get_generate_metaphor(data: dict):
+    return {"metaphors": generate_metaphor(data["poem"], data["source"], data["target"])}
 
 @app.post("/rewrite_line")
-def get_rewrite_line(poem: dict, line_index: int):
-    return {"rewrite": rewrite_line(poem, line_index)}
+def get_rewrite_line(data: dict):
+    return {"rewrite": rewrite_line(data["poem"], data["line"])}
