@@ -156,7 +156,7 @@
 
     async function getSynonyms() {
         commandStore.update(store => {
-            store.command = 'loading';
+            store.command = 'generating';
             return store;
         });
         if (selectedPoemId) {
@@ -202,7 +202,7 @@
 
     async function getRhymes() {
         commandStore.update(store => {
-            store.command = 'loading';
+            store.command = 'generating';
             return store;
         });
         if (selectedPoemId) {
@@ -245,6 +245,29 @@
         }
     }
 
+    async function getFeedback() {
+        console.log("GETTING FEEDBACK");
+        commandStore.update(store => {
+            store.command = 'generating';
+            return store;
+        });
+
+        let response = await fetch(`${env.PUBLIC_SERVER_URL}/feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(currentPoem),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            commandStore.set({ command: 'feedback', feedback: data.feedback });
+        }
+    }
+
     let prev = 0;
 
     $: if (selectedWordIndex !== prev) {
@@ -257,6 +280,7 @@
         }
         prev = selectedWordIndex;
     }
+
 
 
 </script>
@@ -301,18 +325,26 @@
                 {/each}
             </div>
             {:else if sidebarMode === 'command'}
-                {#if mode === 3}
+                {#if mode === 2}
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">assistant</span>
+                        <span class="ml-2">Get Feedback</span>
+                    </button>
+
+
+                {:else if mode == 3}
+
                     
                 {:else if mode === 4}
-                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
+                    <button class="flex items-center px-4 text-md py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 35px;">compare_arrows</span>
-                        <span class="ml-2">Suggest Replacement</span>
+                        <span class="ml-2">Get Replacement</span>
                     </button>
-                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getSynonyms}>
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getSynonyms}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">autorenew</span>
                         <span class="ml-2">Get Synonyms</span>
                     </button>
-                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">music_note</span>
                         <span class="ml-2">Get Rhymes</span>
                     </button>
