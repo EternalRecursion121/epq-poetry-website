@@ -5,8 +5,10 @@
     export let selectedWordIndex: number|null = null;
 
     let loaded = false;
+    let selectedLine:string;
 
     import { onMount } from 'svelte';
+    import { commandStore } from './store';
 
     export const replaceWord = (word) => {
         console.log(selectedWordIndex);
@@ -41,8 +43,13 @@
 
     function wrapWords() {
         unwrapWords();
-        editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]|&nbsp;)(([^<>\s&]|&(?!nbsp;))+)/g, '$1<span class="word">$2</span>');
-        editordiv.innerHTML = editordiv.innerHTML;
+        if ($commandStore.command === "rewriteLine") {
+            // Match the entire line until a line break or the end of the string
+            editordiv.innerHTML = editordiv.innerHTML.replace(/(.+?)(<br>|$)/g, '<span class="line">$1</span><br>');
+        } else {
+            // If it's not line mode, fall back to word mode
+            editordiv.innerHTML = editordiv.innerHTML.replace(/(^|>|[\s]|&nbsp;)(([^<>\s&]|&(?!nbsp;))+)/g, '$1<span class="word">$2</span>');
+        }
         currentPoem.body = editordiv?.innerText;
         addEventListenersToSpans();
     }
@@ -58,7 +65,14 @@
             span.addEventListener('click', (e) => {
                 spanElements.forEach((span) => span.classList.remove('selected')); // Remove the class from all words
                 span.classList.add('selected'); // Add the class to the selected word
-                selectedWordIndex = index;
+                if ($commandStore.command === "rewriteLine") {
+                    commandStore.update(store => {
+                        store.line = span.innerText;;
+                        return store;
+                    });
+                } else {
+                    selectedWordIndex = index;
+                }
             });
 
             span.addEventListener('dblclick', (e) => {
@@ -76,7 +90,9 @@
     }
 
     $: if (editordiv) {
-        if (mode === 4) {
+        if ($commandStore.command === "rewriteLine" && mode === 4) {
+            wrapWords();
+        } else if (mode === 4) {
             wrapWords();
         } else {
             unwrapWords();
@@ -91,7 +107,18 @@
 </div>
 
 <style lang="postcss">
+    .editordiv :global(.word), .editordiv :global(.line) {
+        @apply border border-gray-700 px-2 my-1 bg-black bg-opacity-0 cursor-pointer;
+    }
+
+    .editordiv :global(.word:not(.selected)), .editordiv :global(.line:not(.selected)) {
+        @apply hover:hover:bg-opacity-10;
+    }
+
     .editordiv :global(.word) {
+        @apply border border-gray-700 px-2 my-1 bg-black bg-opacity-0 cursor-pointer;
+    }
+    .editordiv :global(.div) {
         @apply border border-gray-700 px-2 my-1 bg-black bg-opacity-0 cursor-pointer;
     }
 

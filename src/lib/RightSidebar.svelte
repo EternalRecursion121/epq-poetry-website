@@ -55,9 +55,9 @@
 </script>
 
 <div class="right-sidebar" class:open={pSidebarOpen && command}>
-    {#if command === "generating"}
+    {#if command === "generating" || (command === "rewriteLine" && !($commandStore.rewrites))}
         <h2 class="font-bold text-lg">Generating<span class="ellipsis-anim">.</span></h2>
-        <h3 class="font-light">(may take a while for some)</h3>
+        <h3 class="font-light">(may take a while)</h3>
     {:else if command === "error"}
         <h2 class="font-bold text-lg">Error</h2>
         <p>{selectedWord}</p>
@@ -110,8 +110,32 @@
         <h2 class="font-bold text-lg mb-2">Feedback</h2>
         <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer">
             <p>{@html $commandStore.feedback.replace(/\n/g, '<br>')}</p>
-        </div>   
+        </div>
+    <!--Start-->
+    {:else if command === "rewriteLine" && $commandStore.rewrites}
+        <h2 class="font-bold text-lg mb-2">Rewrites</h2>
+        <p class="selected-word">Original Line: <br><span>{$commandStore.line}</span></p>
+        <div class="space-y-2">
+            {#each $commandStore.rewrites as rewrite}
+                <div class="bg-white shadow-sm text-sm rounded-md p-3">
+                    <p class="font-bold mb-2">{rewrite}</p>
+                </div>
+            {/each}
+        </div>
+    {:else if command === "metaphor"}
+        <h2 class="font-bold text-lg mb-2">Metaphor</h2>
+        <p class="selected-word">Source: <span>{$commandStore.source}</span></p>
+        <p class="selected-word">Target: <span>{$commandStore.target}</span></p>
+        <h3 class="font-bold mb-2">Generated Metaphors:</h3>
+        <div class="space-y-4">
+            {#each $commandStore.metaphors as metaphor}
+                <div class="bg-white shadow-sm font-medium text-sm rounded-md p-3">
+                    <p>{metaphor}</p>
+                </div>
+            {/each}
+        </div>
     {/if}
+    <!--End-->
 </div>
 
 <style lang="postcss">
