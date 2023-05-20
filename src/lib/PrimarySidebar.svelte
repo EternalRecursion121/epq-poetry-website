@@ -12,6 +12,49 @@
 
     import { commandStore } from './store.ts';
     import { env } from '$env/dynamic/public';
+    import params from './params.json';
+    import { onMount } from 'svelte';
+
+    let search = '';
+    let searchPoet = '';
+    
+    let visibleThemes = params.themes;
+    params.poets.sort();
+
+    let visiblePoets:Array<string> = [];
+    let maxSuggestions = 10;
+
+    onMount(() => {
+        updateVisibleThemes();
+        updateVisiblePoets();
+    });
+
+    function updateVisiblePoets() {
+        if(searchPoet === '') {
+            visiblePoets = [];
+        } else {
+            visiblePoets = params.poets.filter(poet => poet.toLowerCase().includes(searchPoet.toLowerCase())).slice(0, maxSuggestions);
+        }
+    }
+
+
+    function updateVisibleThemes() {
+        if(search === '') {
+            visibleThemes = params.themes;
+        } else {
+            visibleThemes = params.themes.filter(theme => theme.includes(search));
+        }
+    }
+
+    function toggleTheme(theme) {
+        const index = currentPoem.themes.indexOf(theme);
+
+        if(index >= 0) {
+            currentPoem.themes.splice(index, 1);
+        } else {
+            currentPoem.themes.push(theme);
+        }
+    }
 
 
     function openPoem(id: string) {
@@ -51,7 +94,18 @@
 
             let selectedWord;
             let i = 0;
-            let poem_str = `Date Published: 2022|Title:${currentPoem.name}|</s>`;
+            let poem_str = `Date Published: ${currentPoem.year}`
+            if (currentPoem.poet) {
+                poem_str += `|Author:${currentPoem.poet}|`;
+            }
+            poem_str += `|Title:${currentPoem.name}`;
+            if (currentPoem.form) {
+                poem_str += `|Forms:${currentPoem.form}`;
+            }
+            if (currentPoem.themes) {
+                poem_str += `|Themes:${currentPoem.themes.join(', ')}`;
+            }
+            poem_str += "|</s>";
             if (matches) {
                 for (const match of matches) {
                     if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
@@ -233,6 +287,7 @@
             <div class="flex flex-row justify-between items-center">
                 <span on:click={() => {sidebarMode = 'files'}} class:bg-gray-200={sidebarMode === 'files'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">folder</span>
                 <span on:click={() => {sidebarMode = 'command'}} class:bg-gray-200={sidebarMode === 'command'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:29px">keyboard_command_key</span>
+                <span on:click={() => {sidebarMode = 'params'}} class:bg-gray-200={sidebarMode === 'poemParams'} class="material-symbols-sharp text-2xl ml-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">tune</span>
                 <span on:click={() => {selectedPoemId=null; createPoem()}} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
             {#if sidebarMode === 'files'}
@@ -249,22 +304,59 @@
                 {#if mode === 3}
                     
                 {:else if mode === 4}
-                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
+                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 35px;">compare_arrows</span>
                         <span class="ml-2">Suggest Replacement</span>
                     </button>
-                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getSynonyms}>
+                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getSynonyms}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">autorenew</span>
                         <span class="ml-2">Get Synonyms</span>
                     </button>
-                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
+                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getRhymes}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">music_note</span>
                         <span class="ml-2">Get Rhymes</span>
                     </button>
                 {/if}
+            {:else if sidebarMode === 'params'}
+                <div class="space-y-4 mx-3">
+                    <div>
+                        <label for="year" class="block text-sm font-medium text-gray-700">Year: </label>
+                        <input id="year" type="number" bind:value={currentPoem.year} min="1" max="9999" class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="themes" class="block text-sm font-medium text-gray-700">Themes: </label>
+                        <input class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" type="text" bind:value={search} on:input={updateVisibleThemes} placeholder="Search themes..." />
+                    
+                        <div class="dropdown mt-2 px-2 rounded-sm">
+                            {#each visibleThemes as theme (theme)}
+                                <div>
+                                    <input type="checkbox" id={theme} checked={currentPoem.themes.includes(theme)} on:change={() => toggleTheme(theme)}>
+                                    <label for={theme} class="ml-2">{theme}</label>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                    <div>
+                        <label for="form" class="block text-sm font-medium text-gray-700">Form (Optional): </label>
+                        <select id="form" bind:value={currentPoem.form} class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">-- Select a form --</option>
+                            {#each params.forms as form}
+                                <option value={form}>{form}</option>
+                            {/each}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="poet" class="block text-sm font-medium text-gray-700">Poet (Optional): </label>
+                        <input class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" type="text" bind:value={searchPoet} on:input={updateVisiblePoets} placeholder="Search poets..." />
 
-
-  
+                        {#each visiblePoets as poet (poet)}
+                            <div>
+                                <input class="border-1 border max-h-[200px] overflow-y-auto" type="radio" id={poet} bind:group={currentPoem.poet} value={poet}>
+                                <label for={poet}>{poet}</label>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
             {/if}
         </div>
 
@@ -287,6 +379,12 @@
         transition: all 0.5s; }
 
     .sidebar.open {
-        width: 250px;
+        width: 300px;
+    }
+
+    .dropdown {
+        border: 1px solid #ccc;
+        max-height: 200px;
+        overflow-y: auto;
     }
 </style>

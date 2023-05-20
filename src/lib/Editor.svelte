@@ -7,7 +7,6 @@
     let loaded = false;
 
     import { onMount } from 'svelte';
-    import { commandStore } from './store.ts'
 
     export const replaceWord = (word) => {
         console.log(selectedWordIndex);
