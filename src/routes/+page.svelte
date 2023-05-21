@@ -94,16 +94,11 @@
   onMount(() => {
     document.addEventListener('keydown', onKeyPress);
 
-    fetch(`${env.PUBLIC_SERVER_URL}/poems`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      }).then(res => res.json()).then(data => {
-        poems = data;
-    });
+    fetch(`${env.PUBLIC_SERVER_URL}/poems`)
+      .then(res => res.json())
+      .then(data => {
+          poems = data;
+      });
   });
 
 
