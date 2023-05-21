@@ -1,9 +1,16 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.types import ASGIApp, Scope
+from datetime import datetime
 import json
+import requests
 from inference import predict_mask, predict_mask_multi
 from gpt_commands import feedback, generate_metaphor, rewrite_line
-import requests
+import logging
+
+# Configure logging
+logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
 
 with open("data/poems.json") as f:
     poems = json.load(f)
@@ -15,6 +22,7 @@ origins = [
 ]
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -22,6 +30,36 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        start_time = datetime.utcnow()
+        logging.info(f"--- Request {request.method} {request.url} started at {start_time.isoformat()} ---")
+
+        response = await call_next(request)
+        process_time = datetime.utcnow() - start_time
+
+        response_body = b""
+        async for chunk in response.body_iterator:
+            response_body += chunk
+        response_clone = Response(
+            content=response_body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            media_type=response.media_type,
+        )
+
+        logging.info(f"--- Response body: {response_clone.body.decode()} took {process_time.total_seconds()} seconds ---")
+
+        async def streaming_body() -> None:
+            yield response_body
+        response.body_iterator = streaming_body()
+        return response
+
+app.add_middleware(LoggingMiddleware)
+
 
 def save_poems():
     with open("data/poems.json", "w") as f:
