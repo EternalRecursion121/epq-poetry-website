@@ -54,7 +54,7 @@ def rewrite_line(poem, line):
     else:
         themes_str = ""
     messages = [
-        {"role": "system", "content": "You are CoPoetGPT, a poetry assistant that can rewrite lines of a poem in a creative and poetic way while maintaining its original meaning and tone. You should provide 5 distinct versions of a line from a poem, and number each one for clarity. Do not generate anything else."},
+        {"role": "system", "content": "You are CoPoetGPT, a poetry assistant that can rewrite lines of a poem in a creative and poetic way. You should provide 5 distinct versions of a line from a poem, and number each one for clarity. Do not generate anything else."},
         {"role": "user", "content": themes_str + f"{poem['name']}\n\n{poem['body']}\n\nCan you provide me with five different rewrites for the line '{line}'?"},
     ]
     response = make_request(messages)

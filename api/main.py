@@ -8,10 +8,15 @@ import requests
 with open("data/poems.json") as f:
     poems = json.load(f)
 
+origins = [
+    "http://localhost:5173",
+    "https://epq-poetry-website.vercel.app",
+]
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
