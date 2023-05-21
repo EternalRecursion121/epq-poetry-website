@@ -75,6 +75,7 @@
             headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
+            "ngrok-skip-browser-warning": "true"
             }
         }).then(res => {
             if (res.ok) {
@@ -135,6 +136,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*',
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({poem_str}),
                 });
@@ -144,6 +146,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*',
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({poem_str}),
                 });
@@ -193,7 +196,14 @@
                 if (rc) {
                     req_url += `&rc=${rc}`
                 }
-                let response = await fetch(req_url);
+                let response = await fetch(req_url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        "ngrok-skip-browser-warning": "true",
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data);
@@ -238,7 +248,14 @@
                 if (rc) {
                     req_url += `&rc=${rc}`
                 }
-                let response = await fetch(req_url);
+                let response = await fetch(req_url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        "ngrok-skip-browser-warning": "true",
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data);
@@ -260,6 +277,7 @@
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
+                "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify(currentPoem),
         });
@@ -285,6 +303,7 @@
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
+                "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify({ "poem": currentPoem, source, target }),
         });
@@ -322,6 +341,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*',
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({poem: currentPoem, line: value.line}),
                 });
@@ -373,30 +393,31 @@
                 <span on:click={() => {selectedPoemId=null; createPoem()}} class:bg-gray-200={sidebarMode === 'add'} class="material-symbols-sharp text-2xl mr-2 px-2 py-1 rounded-md hover:bg-gray-300 hover:cursor-pointer" style="font-size:30px">add</span>
             </div>
             {#if sidebarMode === 'files'}
-            <div class="flex flex-col my-2">
-                {#each Object.entries(poems) as [id, poem]}
-                    <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center py-1 hover:bg-gray-200" on:click={()=>{openPoem(id)}}>
-                        <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
-                        <span>{poem.name}</span>
-                        <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click|stopPropagation={()=>{deletePoem(id)}}>delete</span>
-                    </button>
-                {/each}
-            </div>
+                <div class="flex flex-col my-2">
+                    {#each Object.entries(poems) as [id, poem]}
+                        <button class:bg-gray-200={id === selectedPoemId} class="flex flex-row justify-between items-center py-1 hover:bg-gray-200" on:click={()=>{openPoem(id)}}>
+                            <span class="material-symbols-sharp text-2xl ml-2" style="font-size:30px">insert_drive_file</span>
+                            <span>{poem.name}</span>
+                            <span id="deleteButton" class="material-symbols-sharp text-2xl mr-2 " style="font-size:24px" on:click|stopPropagation={()=>{deletePoem(id)}}>delete</span>
+                        </button>
+                    {/each}
+                </div>
             {:else if sidebarMode === 'command'}
-                {#if mode === 2}
+                {#if mode === 1}
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
+                        <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">manage_search</span>
+                        <span class="ml-2">Similar Poems</span>
+                    </button>
+                {:else if mode === 2}
                     <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">assistant</span>
                         <span class="ml-2">Get Feedback</span>
                     </button>
-
-
                 {:else if mode == 3}
                     <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={() => {showModal=true}}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 27px;">hub</span>
                         <span class="ml-2">Metaphor</span>
                     </button>
-
-                    
                 {:else if mode === 4}
                     <button class="flex items-center px-4 text-md py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={suggestReplacement}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 35px;">compare_arrows</span>

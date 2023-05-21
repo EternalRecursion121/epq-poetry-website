@@ -31,6 +31,7 @@
           headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          "ngrok-skip-browser-warning": "true"
           },
           body: JSON.stringify(currentPoem)
       }).then(res => res.json()).then(data => {
@@ -45,6 +46,7 @@
             headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
+            "ngrok-skip-browser-warning": "true"
             },
             body: JSON.stringify(currentPoem)
         }).then(res => res.json()).then(data => {
@@ -94,7 +96,7 @@
   onMount(() => {
     document.addEventListener('keydown', onKeyPress);
 
-    fetch(`${env.PUBLIC_SERVER_URL}/poems`)
+    fetch(`${env.PUBLIC_SERVER_URL}/poems`, {method: "get", headers: { "ngrok-skip-browser-warning": "true" }})
       .then(res => res.json())
       .then(data => {
           poems = data;
