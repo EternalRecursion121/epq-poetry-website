@@ -99,7 +99,6 @@
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
         }
       }).then(res => res.json()).then(data => {
         poems = data;
