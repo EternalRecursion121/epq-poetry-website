@@ -11,6 +11,7 @@ with open("data/poems.json") as f:
 origins = [
     "http://localhost:5173",
     "https://epq-poetry-website.vercel.app",
+    "https://7d52-51-182-252-33.ngrok-free.app"
 ]
 
 app = FastAPI()
