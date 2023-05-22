@@ -315,6 +315,29 @@
         }
     }
 
+    async function similarPoems() {
+        commandStore.update(store => {
+            store.command = 'generating';
+            return store;
+        });
+
+        let response = await fetch(`${env.PUBLIC_SERVER_URL}/similar_poems`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                "ngrok-skip-browser-warning": "true",
+            },
+            body: JSON.stringify(currentPoem),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            commandStore.set({ command: 'similarPoems', similarPoems: data.similarPoems });
+        }
+    }
+
     let prev = 0;
 
     $: if (selectedWordIndex !== prev) {
@@ -404,10 +427,10 @@
                 </div>
             {:else if sidebarMode === 'command'}
                 {#if mode === 1}
-                    <!-- <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">manage_search</span>
                         <span class="ml-2">Similar Poems</span>
-                    </button> -->
+                    </button>
                 {:else if mode === 2}
                     <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">assistant</span>

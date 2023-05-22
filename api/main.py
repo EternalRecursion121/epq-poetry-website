@@ -8,6 +8,7 @@ import requests
 from inference import predict_mask, predict_mask_multi
 from gpt_commands import feedback, generate_metaphor, rewrite_line
 import logging
+from poem_search import find_similar_poems
 
 # Configure logging
 logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
@@ -138,3 +139,7 @@ def get_generate_metaphor(data: dict):
 @app.post("/rewrite_line")
 def get_rewrite_line(data: dict):
     return {"rewrite": rewrite_line(data["poem"], data["line"])}
+
+@app.post("/search")
+def get_search(data: dict):
+    return {"poems": find_similar_poems(data["poem"], poems)}

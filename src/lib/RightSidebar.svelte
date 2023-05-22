@@ -40,6 +40,11 @@
         }
     });
 
+    function searchPoem(poem) {
+        const query = encodeURIComponent(`${poem.title} by ${poem.author}`);
+        window.open(`https://www.google.com/search?q=${query}`, '_blank');
+    }
+
 
     onDestroy(() => {
         unsubscribe();
@@ -134,6 +139,21 @@
                 </div>
             {/each}
         </div>
+    {:else if command === "similarPoems"}
+        <h2 class="font-bold text-lg mb-2">Similar Poems</h2>
+        {#each $commandStore.similarPoems as poem}
+            <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer" on:click={() => searchPoem(poem)}>
+                <h2>{poem.title}</h2>
+                <p>
+                {#if poem.poem.length > 100}
+                    {poem.poem.substring(0, 100)}...
+                {:else}
+                    {poem.poem}
+                {/if}
+                </p>
+                <p>{poem.author}</p>
+            </div>
+        {/each}
     {/if}
     <!--End-->
 </div>
