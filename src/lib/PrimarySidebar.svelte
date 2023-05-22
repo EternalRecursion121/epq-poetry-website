@@ -155,186 +155,226 @@
                 const data = await response.json();
                 console.log(data);
                 commandStore.set({ command: 'suggestions', selectedWord, suggestions:data.suggestions });
+            } else {
+                commandStore.set({ command: 'error', error: 'Error generating suggestions' });
             }
         }
     }
 
 
     async function getSynonyms() {
-        commandStore.update(store => {
-            store.command = 'generating';
-            return store;
-        });
-        if (selectedPoemId) {
-            let matches = currentPoem.body.match(/(\s+|\S+)/g);
-            let selectedWord;
-            let lc;
-            let rc;
-            let i = 0;
-            if (matches) {
-                for (const match of matches) {
-                    if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
-                        if (i === selectedWordIndex - 1) {
-                            lc = match.replace(/[^a-zA-Z]/g, '');
-                        } else if (i === selectedWordIndex) {
-                            selectedWord = match.replace(/[^a-zA-Z]/g, '');
-                        } else if (i === selectedWordIndex + 1) {
-                            rc = match.replace(/[^a-zA-Z]/g, '');
-                            break;
+        try {
+            commandStore.update(store => {
+                store.command = 'generating';
+                return store;
+            });
+            if (selectedPoemId) {
+                let matches = currentPoem.body.match(/(\s+|\S+)/g);
+                let selectedWord;
+                let lc;
+                let rc;
+                let i = 0;
+                if (matches) {
+                    for (const match of matches) {
+                        if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
+                            if (i === selectedWordIndex - 1) {
+                                lc = match.replace(/[^a-zA-Z]/g, '');
+                            } else if (i === selectedWordIndex) {
+                                selectedWord = match.replace(/[^a-zA-Z]/g, '');
+                            } else if (i === selectedWordIndex + 1) {
+                                rc = match.replace(/[^a-zA-Z]/g, '');
+                                break;
+                            }
+                            i++;
                         }
-                        i++;
                     }
                 }
-            }
-            console.log("SELECTED_WORD")
+                console.log("SELECTED_WORD")
 
-            if (selectedWord) {
-                let req_url = `${env.PUBLIC_SERVER_URL}/synonyms?word=${selectedWord}`;
-                if (lc) {
-                    req_url += `&lc=${lc}`
-                }
-                if (rc) {
-                    req_url += `&rc=${rc}`
-                }
-                let response = await fetch(req_url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data);
-                    commandStore.set({ command: 'synonyms', selectedWord, synonyms: data });
-                }
-            } 
+                if (selectedWord) {
+                    let req_url = `${env.PUBLIC_SERVER_URL}/synonyms?word=${selectedWord}`;
+                    if (lc) {
+                        req_url += `&lc=${lc}`
+                    }
+                    if (rc) {
+                        req_url += `&rc=${rc}`
+                    }
+                    let response = await fetch(req_url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                            "ngrok-skip-browser-warning": "true",
+                        },
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data);
+                        commandStore.set({ command: 'synonyms', selectedWord, synonyms: data });
+                    } else {
+                        commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+                    }
+                } 
+            }
+        } catch (error) {
+            console.error(error);
+            commandStore.set({ command: 'error', error: error.message });
         }
     }
 
     async function getRhymes() {
-        commandStore.update(store => {
-            store.command = 'generating';
-            return store;
-        });
-        if (selectedPoemId) {
-            let matches = currentPoem.body.match(/(\s+|\S+)/g);
-            let selectedWord;
-            let lc;
-            let rc;
-            let i = 0;
-            if (matches) {
-                for (const match of matches) {
-                    if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
-                        if (i === selectedWordIndex - 1) {
-                            lc = match.replace(/[^a-zA-Z]/g, '');
-                        } else if (i === selectedWordIndex) {
-                            selectedWord = match.replace(/[^a-zA-Z]/g, '');
-                        } else if (i === selectedWordIndex + 1) {
-                            rc = match.replace(/[^a-zA-Z]/g, '');
-                            break;
+        try {
+            commandStore.update(store => {
+                store.command = 'generating';
+                return store;
+            });
+            if (selectedPoemId) {
+                let matches = currentPoem.body.match(/(\s+|\S+)/g);
+                let selectedWord;
+                let lc;
+                let rc;
+                let i = 0;
+                if (matches) {
+                    for (const match of matches) {
+                        if (/\S/.test(match)) { // If the match is not whitespace (i.e., it's a word)
+                            if (i === selectedWordIndex - 1) {
+                                lc = match.replace(/[^a-zA-Z]/g, '');
+                            } else if (i === selectedWordIndex) {
+                                selectedWord = match.replace(/[^a-zA-Z]/g, '');
+                            } else if (i === selectedWordIndex + 1) {
+                                rc = match.replace(/[^a-zA-Z]/g, '');
+                                break;
+                            }
+                            i++;
                         }
-                        i++;
                     }
                 }
-            }
 
-            if (selectedWord) {
-                let req_url = `${env.PUBLIC_SERVER_URL}/rhymes?word=${selectedWord}`;
-                if (lc) {
-                    req_url += `&lc=${lc}`
-                }
-                if (rc) {
-                    req_url += `&rc=${rc}`
-                }
-                let response = await fetch(req_url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data);
-                    commandStore.set({ command: 'rhymes', selectedWord, rhymes: data });
-                }
-            } 
+                if (selectedWord) {
+                    let req_url = `${env.PUBLIC_SERVER_URL}/rhymes?word=${selectedWord}`;
+                    if (lc) {
+                        req_url += `&lc=${lc}`
+                    }
+                    if (rc) {
+                        req_url += `&rc=${rc}`
+                    }
+                    let response = await fetch(req_url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                            "ngrok-skip-browser-warning": "true",
+                        },
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data);
+                        commandStore.set({ command: 'rhymes', selectedWord, rhymes: data });
+                    } else {
+                        commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+                    }
+                } 
+            }
+        } catch (error) {
+            console.error(error);
+            commandStore.set({ command: 'error', error: error.message });
         }
     }
 
     async function getFeedback() {
-        console.log("GETTING FEEDBACK");
-        commandStore.update(store => {
-            store.command = 'generating';
-            return store;
-        });
+        try {
+            console.log("GETTING FEEDBACK");
+            commandStore.update(store => {
+                store.command = 'generating';
+                return store;
+            });
 
-        let response = await fetch(`${env.PUBLIC_SERVER_URL}/feedback`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify(currentPoem),
-        });
+            let response = await fetch(`${env.PUBLIC_SERVER_URL}/feedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify(currentPoem),
+            });
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            commandStore.set({ command: 'feedback', feedback: data.feedback });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                commandStore.set({ command: 'feedback', feedback: data.feedback });
+            } else {
+                commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+            }
+        } catch (error) {
+            console.error(error);
+            commandStore.set({ command: 'error', error: error.message });
         }
     }
 
     async function metaphor(e) {
-        showModal = false;
-        const source = e.detail.source;
-        const target = e.detail.target;
-        commandStore.update(store => {
-            store.command = 'generating';
-            return store;
-        });
+        try {
+            showModal = false;
+            const source = e.detail.source;
+            const target = e.detail.target;
+            commandStore.update(store => {
+                store.command = 'generating';
+                return store;
+            });
 
-        let response = await fetch(`${env.PUBLIC_SERVER_URL}/metaphors`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({ "poem": currentPoem, source, target }),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            commandStore.set({ command: 'metaphor', source, target, ...data });
+            let response = fetch(`${env.PUBLIC_SERVER_URL}/metaphors`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify({ "poem": currentPoem, source, target }),
+            }).then(response => {
+                if (response.ok) {
+                    const data = response.json();
+                    console.log(data);
+                    commandStore.set({ command: 'metaphor', source, target, ...data });
+                } else {
+                    commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+                }
+            }).catch(err => {
+                commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+            });
+        } catch (error) {
+            console.error(error);
+            commandStore.set({ command: 'error', error: error.message });
         }
     }
 
     async function similarPoems() {
-        commandStore.update(store => {
-            store.command = 'generating';
-            return store;
-        });
+        try {
+            console.log("RUNNING")
+            commandStore.update(store => {
+                store.command = 'generating';
+                return store;
+            });
 
-        let response = await fetch(`${env.PUBLIC_SERVER_URL}/similar_poems`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify(currentPoem),
-        });
+            let response = await fetch(`${env.PUBLIC_SERVER_URL}/search`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    "ngrok-skip-browser-warning": "true",
+                },
+                body: JSON.stringify(currentPoem),
+            });
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            commandStore.set({ command: 'similarPoems', similarPoems: data.similarPoems });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                commandStore.set({ command: 'similarPoems', similarPoems: data.poems, scores: data.distances });
+            } else {
+                commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+            }
+        } catch (error) {
+            console.error(error);
+            commandStore.set({ command: 'error', error: error.message });
         }
     }
 
@@ -359,19 +399,26 @@
         const unsubscribe = commandStore.subscribe(async value => {
             if (value.line) {
                 console.log({poem: currentPoem, line: value.line});
-                let response = await fetch(`${env.PUBLIC_SERVER_URL}/rewrite_line`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        "ngrok-skip-browser-warning": "true"
-                    },
-                    body: JSON.stringify({poem: currentPoem, line: value.line}),
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data);
-                    commandStore.set({ command: 'rewriteLine', line: value.line, rewrites: data.rewrite });
+                try {
+                    let response = await fetch(`${env.PUBLIC_SERVER_URL}/rewrite_line`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                            "ngrok-skip-browser-warning": "true"
+                        },
+                        body: JSON.stringify({poem: currentPoem, line: value.line}),
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data);
+                        commandStore.set({ command: 'rewriteLine', line: value.line, rewrites: data.rewrite });
+                    } else {
+                        commandStore.set({ command: 'error', error: 'Error generating suggestions' });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    commandStore.set({ command: 'error', error: error.message });
                 }
                 unsubscribe();
             }
@@ -427,7 +474,7 @@
                 </div>
             {:else if sidebarMode === 'command'}
                 {#if mode === 1}
-                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={getFeedback}>
+                    <button class="flex items-center px-4 py-2 font-medium rounded-md hover:bg-gray-300 focus:outline-none transition duration-150 ease-in-out" on:click={similarPoems}>
                         <span class="material-symbols-sharp text-2xl mr-2" style="font-size: 28px;">manage_search</span>
                         <span class="ml-2">Similar Poems</span>
                     </button>

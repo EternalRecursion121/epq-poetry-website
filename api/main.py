@@ -141,5 +141,6 @@ def get_rewrite_line(data: dict):
     return {"rewrite": rewrite_line(data["poem"], data["line"])}
 
 @app.post("/search")
-def get_search(data: dict):
-    return {"poems": find_similar_poems(data["poem"], poems)}
+def get_search(poem: dict):
+    distances, poems = find_similar_poems(poem)
+    return {"poems": poems, "distances": distances.tolist()}

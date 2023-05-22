@@ -41,7 +41,8 @@
     });
 
     function searchPoem(poem) {
-        const query = encodeURIComponent(`${poem.title} by ${poem.author}`);
+        console.log(poem.author)
+        const query = encodeURIComponent(`${poem.title.trim()} by ${poem.author.trim()}`);
         window.open(`https://www.google.com/search?q=${query}`, '_blank');
     }
 
@@ -64,8 +65,7 @@
         <h2 class="font-bold text-lg">Generating<span class="ellipsis-anim">.</span></h2>
         <h3 class="font-light">(may take a while)</h3>
     {:else if command === "error"}
-        <h2 class="font-bold text-lg">Error</h2>
-        <p>{selectedWord}</p>
+        <h2 class="font-bold text-lg text-red-600">Error</h2>
     {:else if command === "suggestions"}
         <h2 class="font-bold text-lg">Word Suggestions</h2>
         <p class="selected-word">Selected Word: <span>{selectedWord}</span></p>
@@ -141,19 +141,27 @@
         </div>
     {:else if command === "similarPoems"}
         <h2 class="font-bold text-lg mb-2">Similar Poems</h2>
-        {#each $commandStore.similarPoems as poem}
-            <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer" on:click={() => searchPoem(poem)}>
-                <h2>{poem.title}</h2>
-                <p>
-                {#if poem.poem.length > 100}
-                    {poem.poem.substring(0, 100)}...
-                {:else}
-                    {poem.poem}
-                {/if}
-                </p>
-                <p>{poem.author}</p>
-            </div>
-        {/each}
+        <div class="space-y-2">
+            {#each $commandStore.similarPoems as poem, i}
+                <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer hover:bg-gray-100" on:click={() => searchPoem(poem)}>
+                    <h3 class="font-bold mb-1">{poem.title}</h3>
+                    <p class="text-gray-500 mb-2">By {poem.author}</p>
+                    
+                    <p class="text-gray-700 font-thin">
+                    {#if poem.poem.length > 100}
+                        {@html poem.poem.trim().substring(0, 100).replace(/\n/g, '<br>')}...
+                        <br><span class="text-gray-400">Click to read more.</span>
+                    {:else}
+                        {@html poem.poem.replace(/\n/g, '<br>').trim()}
+                    {/if}
+                    </p>
+                    <div class="flex justify-between">
+                        <p class="selected-word">Score: <span>{Math.round($commandStore.scores[i]*10000)}</span></p>
+                        <span class="material-symbols-sharp text-2xl mr-2 hover:scale-110 text-gray-600 hover:text-gray-700" style="font-size: 28px;">manage_search</span>
+                    </div>
+                </div>
+            {/each}
+        </div>
     {/if}
     <!--End-->
 </div>
