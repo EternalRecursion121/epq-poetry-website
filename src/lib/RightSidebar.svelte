@@ -116,7 +116,6 @@
         <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer">
             <p>{@html $commandStore.feedback.replace(/\n/g, '<br>')}</p>
         </div>
-    <!--Start-->
     {:else if command === "rewriteLine" && $commandStore.rewrites}
         <h2 class="font-bold text-lg mb-2">Rewrites</h2>
         <p class="selected-word">Original Line: <br><span>{$commandStore.line}</span></p>
@@ -162,8 +161,12 @@
                 </div>
             {/each}
         </div>
+    {:else if command==="ideas"}
+        <h2 class="font-bold text-lg mb-2">Idea Generation</h2>
+        <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer">
+            <p>{@html $commandStore.ideas.replace(/\n/g, '<br>')}</p>
+        </div>
     {/if}
-    <!--End-->
 </div>
 
 <style lang="postcss">

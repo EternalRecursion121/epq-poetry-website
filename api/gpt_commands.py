@@ -17,6 +17,7 @@ def make_request(messages):
                 model="gpt-4",
                 messages=messages,
                 max_tokens=350,
+                
             )
             return response.choices[0]["message"]["content"]
         finally:
@@ -59,3 +60,10 @@ def rewrite_line(poem, line):
     ]
     response = make_request(messages)
     return re.split(r'\d\.', response)[1:]
+
+def generate_ideas(about):
+    messages = [
+        {"role": "system", "content":"You are CoPoetGPT, a creative poetry assistant designed to help users generate poetic ideas and themes. Your aim is to provide a variety of creative and insightful suggestions and ideas for writing a poem based on the given theme."},
+        {"role": "user", "content":f"I would like to write a poem about {about}. Can you provide me with some creative ideas I could explore?"},
+    ]
+    return make_request(messages)

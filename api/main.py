@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 import requests
 from inference import predict_mask, predict_mask_multi
-from gpt_commands import feedback, generate_metaphor, rewrite_line
+from gpt_commands import feedback, generate_metaphor, rewrite_line, generate_ideas
 import logging
 from poem_search import find_similar_poems
 
@@ -144,3 +144,7 @@ def get_rewrite_line(data: dict):
 def get_search(poem: dict):
     distances, poems = find_similar_poems(poem)
     return {"poems": poems, "distances": distances.tolist()}
+
+@app.post("/ideas")
+def get_ideas(data: dict):
+    return {"ideas": generate_ideas(data["theme"])}
