@@ -315,6 +315,7 @@
     }
 
     async function metaphor(e) {
+        console.log("METAPHOR")
         try {
             showMetaphorModal = false;
             const source = e.detail.source;
@@ -334,9 +335,10 @@
                 body: JSON.stringify({ "poem": currentPoem, source, target }),
             }).then(response => {
                 if (response.ok) {
-                    const data = response.json();
-                    console.log(data);
-                    commandStore.set({ command: 'metaphor', source, target, ...data });
+                    const data = response.json().then(data => {
+                        console.log(data);
+                        commandStore.set({ command: 'metaphor', source, target, ...data });
+                    });
                 } else {
                     commandStore.set({ command: 'error', error: 'Error generating suggestions' });
                 }

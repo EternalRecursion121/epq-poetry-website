@@ -20,7 +20,7 @@
   });
 </script>
 
-<div class="modal z-50" on:click={closeModal}>
+<div class="modal z-50">
   <div class="modal-content" on:click={(event) => event.stopPropagation()}>
     <div class="modal-header pt-4">
       <h2 class="modal-title">Write a Metaphor</h2>
