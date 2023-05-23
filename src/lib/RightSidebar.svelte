@@ -163,8 +163,12 @@
         </div>
     {:else if command==="ideas"}
         <h2 class="font-bold text-lg mb-2">Idea Generation</h2>
-        <div class="bg-white shadow-sm text-sm rounded-md p-3 cursor-pointer">
-            <p>{@html $commandStore.ideas.replace(/\n/g, '<br>')}</p>
+        <div class="space-y-2">
+            {#each $commandStore.ideas as idea}
+                <div class="bg-white shadow-sm text-sm rounded-md p-3">
+                    <p class="font-bold mb-2">{idea}</p>
+                </div>
+            {/each}
         </div>
     {/if}
 </div>
